@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
 import { projects } from '../../data/projectsData';
 import './Projects.css';
 
