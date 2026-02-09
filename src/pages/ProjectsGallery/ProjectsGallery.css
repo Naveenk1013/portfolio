@@ -1,0 +1,137 @@
+/* ===============================================
+   Projects Gallery Page Styles
+   =============================================== */
+
+.gallery-page {
+    min-height: 100vh;
+    background: #000;
+    padding: 0 40px 80px;
+}
+
+/* Header */
+.gallery-header {
+    padding: 30px 0 50px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    color: #00f7ff;
+}
+
+.gallery-title-section {
+    margin-top: 30px;
+}
+
+.gallery-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0 0 15px;
+    background: linear-gradient(135deg, #00f7ff 0%, #8338ec 50%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gallery-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+    max-width: 600px;
+}
+
+/* Filter Tabs */
+.gallery-filters {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 50px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(0, 247, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, rgba(82, 39, 255, 0.2), rgba(0, 247, 255, 0.15));
+    border-color: #00f7ff;
+    color: #00f7ff;
+}
+
+.filter-count {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.filter-btn.active .filter-count {
+    background: rgba(0, 247, 255, 0.25);
+}
+
+/* Masonry Grid */
+.masonry-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    columns: 3;
+    column-gap: 24px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .masonry-grid {
+        columns: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-page {
+        padding: 0 20px 60px;
+    }
+
+    .gallery-title {
+        font-size: 2.5rem;
+    }
+
+    .masonry-grid {
+        columns: 1;
+    }
+
+    .gallery-filters {
+        gap: 8px;
+    }
+
+    .filter-btn {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+    }
+}

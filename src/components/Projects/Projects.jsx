@@ -1,105 +1,65 @@
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { projects } from '../../data/projectsData';
 import './Projects.css';
-import FlowingMenu from '../FlowingMenu/FlowingMenu';
 
-const projects = [
-    {
-        text: 'Hotel PMS System',
-        link: 'https://hotelshardapalacepms.netlify.app',
-        image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Lancealot Freelancing',
-        link: 'https://lancealot.in',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'AI Resume Creator',
-        link: 'https://airesume-teal.vercel.app',
-        image: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Cocktail Finder',
-        link: 'https://cocktailfinderforbar.netlify.app',
-        image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Prince Startup QSR',
-        link: 'https://princestartup.netlify.app',
-        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Quality Inn Ayodhya',
-        link: 'https://qualityinnayodhya.netlify.app',
-        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Financial Advisor Portfolio',
-        link: 'https://navneetkr.netlify.app',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Gyani AI Research',
-        link: 'https://gyani-ai.netlify.app',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Drips & Cream Bakery',
-        link: 'https://dripsandcream.netlify.app',
-        image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Aurumm Living PG',
-        link: 'https://aurummliving.netlify.app',
-        image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Harmony Hostel',
-        link: 'https://harmonyhostel.netlify.app',
-        image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Cake-A-Way',
-        link: 'https://cakeaway.netlify.app',
-        image: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Hospitality Stuff',
-        link: 'https://hospitalitystuff.netlify.app',
-        image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Narayan Hardware',
-        link: 'https://narayanhardware.netlify.app',
-        image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'World of Wines',
-        link: 'https://wofw.netlify.app',
-        image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Sharda Palace Hotel',
-        link: 'https://hotelshardapalace.netlify.app',
-        image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop'
-    },
-    {
-        text: 'Style by Rishh',
-        link: 'https://stylebyrishh.netlify.app',
-        image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600&h=400&fit=crop'
-    }
-];
+const featuredProjects = projects.filter(p => p.featured).slice(0, 3);
 
 const Projects = () => {
     return (
         <section className="projects" id="projects">
             <div className="projects-container">
                 <div className="projects-header">
-                    <h2 className="projects-title">Projects</h2>
-                    <p className="projects-subtitle">Some things I've built</p>
+                    <h2 className="projects-title">Featured Projects</h2>
+                    <p className="projects-subtitle">A glimpse of what I've built</p>
                 </div>
 
-                <div className="projects-menu-wrapper">
-                    <FlowingMenu items={projects} />
+                {/* Featured Projects Grid */}
+                <div className="featured-grid">
+                    {featuredProjects.map((project, index) => (
+                        <motion.a
+                            key={project.id}
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="featured-card"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.1 }}
+                        >
+                            <div className="featured-image-wrapper">
+                                <img 
+                                    src={project.image} 
+                                    alt={project.name}
+                                    className="featured-image"
+                                />
+                            </div>
+                            <div className="featured-content">
+                                <span className={`featured-category ${project.category}`}>
+                                    {project.category === 'application' ? '🚀 Web App' : '🌐 Website'}
+                                </span>
+                                <h3 className="featured-title">{project.name}</h3>
+                                <p className="featured-description">{project.description}</p>
+                                <div className="featured-tech">
+                                    {project.techStack.slice(0, 2).map((tech, i) => (
+                                        <span key={i} className="tech-badge">{tech}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.a>
+                    ))}
+                </div>
+
+                {/* View All CTA */}
+                <div className="projects-cta">
+                    <Link to="/projects" className="view-all-btn">
+                        <span>View All Projects</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </Link>
+                    <p className="projects-count">{projects.length} projects in the gallery</p>
                 </div>
             </div>
         </section>
@@ -107,4 +67,3 @@ const Projects = () => {
 };
 
 export default Projects;
-
