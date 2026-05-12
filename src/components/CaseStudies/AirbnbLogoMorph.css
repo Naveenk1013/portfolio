@@ -1,0 +1,12 @@
+.airbnb-morph-container {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.airbnb-path {
+    filter: drop-shadow(0 0 5px rgba(255, 56, 92, 0.5));
+}
