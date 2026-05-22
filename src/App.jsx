@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import DotGrid from './components/DotGrid/DotGrid';
 import StaggeredMenu from './components/StaggeredMenu/StaggeredMenu';
 import Hero from './components/Hero/Hero';
 import TechStack from './components/TechStack/TechStack';
 import About from './components/About/About';
+import CaseStudies from './components/CaseStudies/CaseStudies';
 import Experience from './components/Experience/Experience';
 import Skills from './components/Skills/Skills';
 import Projects from './components/Projects/Projects';
 import Contact from './components/Contact/Contact';
+import CaseStudyDashboard from './components/CaseStudies/CaseStudyDashboard';
 import SplashCursor from './components/SplashCursor/SplashCursor';
 import SmoothScroll from './components/SmoothScroll/SmoothScroll';
 import ScrollProgress from './components/ui/ScrollProgress';
@@ -16,6 +19,7 @@ import './App.css'
 const menuItems = [
   { label: 'Home', ariaLabel: 'Go to home section', link: '#home' },
   { label: 'About', ariaLabel: 'Learn about me', link: '#about' },
+  { label: 'Case Studies', ariaLabel: 'View case studies', link: '#case-studies' },
   { label: 'Experience', ariaLabel: 'View experience', link: '#experience' },
   { label: 'Skills', ariaLabel: 'View skills', link: '#skills' },
   { label: 'Projects', ariaLabel: 'View projects', link: '#projects' },
@@ -29,77 +33,98 @@ const socialItems = [
 ];
 
 function App() {
+  const [selectedStudy, setSelectedStudy] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false);
+
+  const handleViewDashboard = (study) => {
+    setSelectedStudy(study);
+    setShowDashboard(true);
+  };
+
   return (
-    <SmoothScroll>
-      <div className="app">
-        <ScrollProgress />
-        
-        {/* Splash Cursor Effect */}
-        <SplashCursor />
+    <>
+      <SmoothScroll>
+        <div className="app">
+          <ScrollProgress />
+          
+          {/* Splash Cursor Effect */}
+          <SplashCursor />
 
-        {/* Fixed Background - DotGrid handles its own positioning */}
-        <DotGrid
-          dotSize={5}
-          gap={15}
-          baseColor="#271e37"
-          activeColor="#5227ff"
-          proximity={120}
-          shockRadius={250}
-          shockStrength={5}
-          resistance={750}
-          returnDuration={2.5}
+          {/* Fixed Background - DotGrid handles its own positioning */}
+          <DotGrid
+            dotSize={5}
+            gap={15}
+            baseColor="#271e37"
+            activeColor="#5227ff"
+            proximity={120}
+            shockRadius={250}
+            shockStrength={5}
+            resistance={750}
+            returnDuration={2.5}
+          />
+
+          {/* Staggered Menu */}
+          <StaggeredMenu
+            position="right"
+            items={menuItems}
+            socialItems={socialItems}
+            displaySocials={true}
+            displayItemNumbering={true}
+            menuButtonColor="#fff"
+            openMenuButtonColor="#fff"
+            changeMenuColorOnOpen={true}
+            colors={['#B19EEF', '#5227FF']}
+            accentColor="#00f7ff"
+            isFixed={true}
+          />
+
+          {/* Main Content */}
+          <main className="main-content">
+            <SectionReveal>
+              <Hero />
+            </SectionReveal>
+            
+            <SectionReveal delay={0.2}>
+              <TechStack />
+            </SectionReveal>
+            
+            <SectionReveal>
+              <About />
+            </SectionReveal>
+            
+            <SectionReveal>
+              <CaseStudies onViewDashboard={handleViewDashboard} />
+            </SectionReveal>
+            
+            <SectionReveal>
+              <Experience />
+            </SectionReveal>
+            
+            <SectionReveal>
+              <Skills />
+            </SectionReveal>
+            
+            <SectionReveal>
+              <Projects />
+            </SectionReveal>
+            
+            <SectionReveal>
+              <Contact />
+            </SectionReveal>
+          </main>
+        </div>
+      </SmoothScroll>
+
+      {showDashboard && (
+        <CaseStudyDashboard 
+          study={selectedStudy} 
+          onClose={() => setShowDashboard(false)} 
         />
-
-        {/* Staggered Menu */}
-        <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials={true}
-          displayItemNumbering={true}
-          menuButtonColor="#fff"
-          openMenuButtonColor="#fff"
-          changeMenuColorOnOpen={true}
-          colors={['#B19EEF', '#5227FF']}
-          accentColor="#00f7ff"
-          isFixed={true}
-        />
-
-        {/* Main Content */}
-        <main className="main-content">
-          <SectionReveal>
-            <Hero />
-          </SectionReveal>
-          
-          <SectionReveal delay={0.2}>
-            <TechStack />
-          </SectionReveal>
-          
-          <SectionReveal>
-            <About />
-          </SectionReveal>
-          
-          <SectionReveal>
-            <Experience />
-          </SectionReveal>
-          
-          <SectionReveal>
-            <Skills />
-          </SectionReveal>
-          
-          <SectionReveal>
-            <Projects />
-          </SectionReveal>
-          
-          <SectionReveal>
-            <Contact />
-          </SectionReveal>
-        </main>
-      </div>
-    </SmoothScroll>
+      )}
+    </>
   )
 }
 
-export default App
+export default App;
 
 

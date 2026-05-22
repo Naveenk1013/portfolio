@@ -2,6 +2,16 @@
 export const projects = [
     {
         id: 1,
+        name: 'Bevpedia.in',
+        category: 'website',
+        description: 'A premium, dark-academic beverage encyclopedia. Features a luxury serif-driven UI with golden accents, interactive beverage quizzes, and comprehensive knowledge for beverage professionals.',
+        techStack: ['React', 'GSAP', 'Premium UI', 'SEO'],
+        liveUrl: 'https://bevpedia.in',
+        image: '/projects/bevpedia.png',
+        featured: true
+    },
+    {
+        id: 2,
         name: 'Hotel PMS System',
         category: 'application',
         description: 'A comprehensive Property Management System (Front Office Module) for hotels. Features include room management, booking system, guest check-in/out, and real-time dashboard with audit logs.',
@@ -11,7 +21,7 @@ export const projects = [
         featured: true
     },
     {
-        id: 2,
+        id: 3,
         name: 'Lancealot Freelancing',
         category: 'application',
         description: 'My freelancing platform where clients can explore my services, view portfolio, and get in touch for web development projects.',
@@ -21,7 +31,7 @@ export const projects = [
         featured: true
     },
     {
-        id: 3,
+        id: 4,
         name: 'AI Resume Creator',
         category: 'application',
         description: 'An intelligent resume builder powered by AI. Users can create professional resumes with AI-assisted content suggestions, multiple templates, and export options.',
@@ -31,7 +41,7 @@ export const projects = [
         featured: true
     },
     {
-        id: 4,
+        id: 5,
         name: 'Gyani AI Research',
         category: 'application',
         description: 'A web application for writing research-level content. Users can choose different AI models according to their needs using OpenRouter API integration.',
@@ -41,7 +51,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 5,
+        id: 6,
         name: 'Cocktail Finder',
         category: 'application',
         description: 'A fun cocktail recipe finder where you can discover new drinks and learn how to make them. Built when I wanted to try something new!',
@@ -51,7 +61,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 6,
+        id: 7,
         name: 'Hospitality Notes',
         category: 'application',
         description: 'An educational platform for hospitality students providing notes and resources relevant to their subjects.',
@@ -61,7 +71,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 7,
+        id: 8,
         name: 'Prince Startup QSR',
         category: 'website',
         description: 'A startup website for a QSR (Quick Service Restaurant) outlet showcasing their work, menu, and brand story.',
@@ -71,7 +81,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 8,
+        id: 9,
         name: 'Quality Inn Ayodhya',
         category: 'website',
         description: 'A hotel website for Quality Inn RAMA - offering premium comfort in the heart of sacred Ayodhya. Features room booking and amenities showcase.',
@@ -81,7 +91,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 9,
+        id: 10,
         name: 'Financial Advisor Portfolio',
         category: 'website',
         description: 'A professional portfolio for a financial advisor and investor who helps individuals understand investing with a simple, transparent, research-based approach.',
@@ -91,7 +101,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 10,
+        id: 11,
         name: 'Drips & Cream Bakery',
         category: 'website',
         description: 'A cloud bakery website based in Lal Bangla, Kanpur, specializing in premium eggless homemade cakes, cookies, and desserts.',
@@ -101,7 +111,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 11,
+        id: 12,
         name: 'Aurumm Living PG',
         category: 'website',
         description: 'A website for PG services to boost and promote their business with hygienic stays, healthy food, and peaceful living environment.',
@@ -111,7 +121,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 12,
+        id: 13,
         name: 'Harmony Hostel',
         category: 'website',
         description: 'A hostel website in Bodakdev, Ahmedabad offering fully furnished AC rooms, nutritious meals, and proximity to top coaching institutes.',
@@ -121,7 +131,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 13,
+        id: 14,
         name: 'Cake-A-Way',
         category: 'website',
         description: 'A cloud kitchen website specializing in bakery products, especially cookies. Personalized handcrafted desserts for every occasion.',
@@ -131,7 +141,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 14,
+        id: 15,
         name: 'Narayan Hardware',
         category: 'website',
         description: 'A business website for a hardware store delivering quality cement, plywood, doors, and premium hardware from trusted brands like Greenply and Hettich.',
@@ -141,7 +151,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 15,
+        id: 16,
         name: 'World of Wines',
         category: 'website',
         description: 'A luxurious and premium interactive website for learning everything about wines with detailed knowledge and elegant presentation.',
@@ -151,7 +161,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 16,
+        id: 17,
         name: 'Sharda Palace Hotel',
         category: 'website',
         description: 'A hotel website offering divine hospitality with modern amenities in the spiritual heart of Vrindavan.',
@@ -161,7 +171,7 @@ export const projects = [
         featured: false
     },
     {
-        id: 17,
+        id: 18,
         name: 'Style by Rishh',
         category: 'website',
         description: 'A premium portfolio website for a client to boost their styling and fashion services with elegant design.',

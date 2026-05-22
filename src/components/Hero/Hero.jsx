@@ -1,11 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import TextPressure from '../TextPressure/TextPressure';
+import CinematicTitle from './CinematicTitle';
 import ProfileCard from '../ProfileCard/ProfileCard';
 import PortalTransition from '../PortalTransition/PortalTransition';
 import './Hero.css';
 
 const PORTAL_CLICK_THRESHOLD = 6;
 const CLICK_RESET_DELAY = 3000; // Reset counter after 3s of inactivity
+
+const textArray = [
+    'Frontend Developer',
+    'UI/UX Designer',
+    'Tech Enthusiast',
+    'Creative Developer',
+    'Problem Solver'
+];
 
 const Hero = () => {
     const [typedText, setTypedText] = useState('');
@@ -18,14 +27,6 @@ const Hero = () => {
     const [portalActive, setPortalActive] = useState(false);
     const [avatarWiggle, setAvatarWiggle] = useState(false);
     const clickTimerRef = useRef(null);
-
-    const textArray = [
-        'Frontend Developer',
-        'HR Specialist',
-        'Educational Technology Enthusiast',
-        'Web Developer',
-        'Creative Designer'
-    ];
 
     useEffect(() => {
         const currentText = textArray[textArrayIndex];
@@ -40,18 +41,18 @@ const Hero = () => {
             timeout = setTimeout(() => {
                 setTypedText(currentText.substring(0, charIndex + 1));
                 setCharIndex(charIndex + 1);
-            }, 100);
+            }, 80);
         }
 
         if (!isDeleting && charIndex === currentText.length) {
-            timeout = setTimeout(() => setIsDeleting(true), 2000);
+            timeout = setTimeout(() => setIsDeleting(true), 2500);
         } else if (isDeleting && charIndex === 0) {
             setIsDeleting(false);
             setTextArrayIndex((textArrayIndex + 1) % textArray.length);
         }
 
         return () => clearTimeout(timeout);
-    }, [charIndex, isDeleting, textArrayIndex, textArray]);
+    }, [charIndex, isDeleting, textArrayIndex]);
 
     const handleContactClick = () => {
         window.location.href = '#contact';
@@ -95,26 +96,24 @@ const Hero = () => {
                 {/* Left Content */}
                 <div className="hero-content">
                     <div className="hero-subtitle">
-                        Welcome to my portfolio
+                        Architecting Digital Experiences
                     </div>
-                    {/* TextPressure Effect for Name */}
+                    {/* Cinematic Title Reveal */}
                     <div className="hero-title-container">
+                        <CinematicTitle text="NAVEEN KUMAR" />
+                    </div>
+                    <div className="hero-description-pressure">
                         <TextPressure
-                            text="Naveen Kumar"
+                            text={typedText || ' '}
                             flex={true}
                             alpha={false}
                             stroke={false}
                             width={true}
                             weight={true}
                             italic={true}
-                            textColor="#ffffff"
-                            strokeColor="#00f7ff"
-                            minFontSize={48}
+                            textColor="#00f7ff"
+                            minFontSize={32}
                         />
-                    </div>
-                    <div className="hero-description">
-                        <span className="typed-text">{typedText}</span>
-                        <span className="typed-cursor">|</span>
                     </div>
                     <div className="hero-buttons">
                         <a href="#projects" className="btn btn-primary">
@@ -129,7 +128,7 @@ const Hero = () => {
                 {/* Right - Profile Card */}
                 <div className={`hero-card ${avatarWiggle ? 'hero-card-wiggle' : ''}`}>
                     <ProfileCard
-                        name="Naveen Kumar"
+                        name="NAVEEN KUMAR"
                         title="Frontend Developer"
                         handle="naveenkumar"
                         status="Available for work"
