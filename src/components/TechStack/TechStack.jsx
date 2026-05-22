@@ -1,7 +1,7 @@
 import LogoLoop from '../LogoLoop/LogoLoop';
 import {
     SiHtml5,
-    SiCss3,
+    SiCss,
     SiJavascript,
     SiReact,
     SiNodedotjs,
@@ -25,7 +25,7 @@ import './TechStack.css';
 // Combine all logos into a single array
 const allLogos = [
     { node: <SiHtml5 />, title: "HTML5" },
-    { node: <SiCss3 />, title: "CSS3" },
+    { node: <SiCss />, title: "CSS3" },
     { node: <SiJavascript />, title: "JavaScript" },
     { node: <SiReact />, title: "React" },
     { node: <SiTailwindcss />, title: "Tailwind CSS" },
