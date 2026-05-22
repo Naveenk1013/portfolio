@@ -34,7 +34,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.15;
+  opacity: 0.08;
   background-image: radial-gradient(var(--manga-ink) 2px, transparent 2px);
   background-size: 8px 8px;
 }
@@ -185,6 +185,40 @@
   color: var(--manga-ink);
 }
 
+/* ── Narrator Storytelling Boxes ── */
+.aw-narrator-box {
+  background: white;
+  border: var(--manga-border);
+  padding: 30px;
+  max-width: 800px;
+  margin: 40px auto 80px;
+  position: relative;
+  box-shadow: 10px 10px 0 var(--manga-ink);
+  transform: rotate(-1deg);
+  z-index: 2;
+}
+
+.aw-narrator-label {
+  position: absolute;
+  top: -18px;
+  left: -20px;
+  background: var(--manga-ink);
+  color: white;
+  font-family: var(--font-comic);
+  padding: 5px 20px;
+  font-size: 1.5rem;
+  transform: rotate(-4deg);
+  box-shadow: 4px 4px 0 var(--manga-red);
+}
+
+.aw-narrator-text {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: var(--manga-ink);
+}
+
 /* ── Section Headers ── */
 .aw-section {
   padding: 60px 20px;
@@ -236,6 +270,7 @@
   width: 300px;
   box-shadow: 4px 4px 0 var(--manga-ink);
   outline: none;
+  color: var(--manga-ink);
 }
 .aw-search-input:focus {
   background: #fffdf5;
@@ -250,6 +285,7 @@
   cursor: pointer;
   box-shadow: 3px 3px 0 var(--manga-ink);
   transition: all 0.2s;
+  color: var(--manga-ink);
 }
 .aw-genre-tag.active {
   background: var(--manga-yellow);

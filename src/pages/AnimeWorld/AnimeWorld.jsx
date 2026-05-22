@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { animeStats, animeReviews, hotTakes, journeyMilestones, allGenres } from '../../data/animeData';
 import './AnimeWorld.css';
 
-/* ── Animated Bounty Counter ── */
-const AnimatedBounty = ({ target, duration = 2500 }) => {
+/* ── Animated Counter ── */
+const AnimatedCounter = ({ target, duration = 2500 }) => {
     const [count, setCount] = useState(0);
     const ref = useRef(null);
     const started = useRef(false);
@@ -19,7 +19,7 @@ const AnimatedBounty = ({ target, duration = 2500 }) => {
                     const step = (now) => {
                         const elapsed = now - start;
                         const progress = Math.min(elapsed / duration, 1);
-                        // Ease out cubic for satisfying spin-up
+                        // Ease out cubic
                         const eased = 1 - Math.pow(1 - progress, 3);
                         setCount(Math.floor(eased * target));
                         if (progress < 1) requestAnimationFrame(step);
@@ -33,7 +33,43 @@ const AnimatedBounty = ({ target, duration = 2500 }) => {
         return () => observer.disconnect();
     }, [target, duration]);
 
-    return <span ref={ref} className="aw-bounty-text">฿ {count.toLocaleString()}</span>;
+    return <span ref={ref} className="aw-bounty-text">{count.toLocaleString()}{target >= 1000 ? '+' : ''}</span>;
+};
+
+/* ── Narrator Box (Storytelling Typewriter) ── */
+const NarratorBox = ({ text }) => {
+    const words = text.split(' ');
+    return (
+        <motion.div 
+            className="aw-narrator-box"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: {
+                    opacity: 1, y: 0,
+                    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+                }
+            }}
+        >
+            <div className="aw-narrator-label">NARRATOR</div>
+            <p className="aw-narrator-text">
+                {words.map((word, i) => (
+                    <motion.span 
+                        key={i} 
+                        style={{ display: "inline-block", marginRight: "0.25em" }}
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: { opacity: 1 }
+                        }}
+                    >
+                        {word}
+                    </motion.span>
+                ))}
+            </p>
+        </motion.div>
+    );
 };
 
 /* ── "DON!!" Manga Sound Effect Easter Egg ── */
@@ -98,7 +134,7 @@ const AnimeWorld = () => {
                     <motion.div
                         className="aw-hero-badge"
                         initial={{ scale: 0, rotate: -10 }}
-                        animate={{ scale: 1, rotate: [-10, 5, -5, 0] }}
+                        animate={{ scale: 1, rotate: 0 }}
                         transition={{ type: 'spring', stiffness: 200, delay: 0.3 }}
                     >
                         CHAPTER 1: THE SECRET LEVEL
@@ -135,32 +171,34 @@ const AnimeWorld = () => {
                         ))}
                     </motion.div>
 
-                    {/* ── Bounty Stats ── */}
+                    {/* ── Action Stats ── */}
                     <div className="aw-bounty-grid">
                         <motion.div className="aw-bounty-card"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: 'spring', delay: 0.5 }}>
-                            <span className="aw-bounty-label">ANIME WATCHED BOUNTY</span>
-                            <AnimatedBounty target={animeStats.animeWatched * 10000} />
+                            <span className="aw-bounty-label">ANIME WATCHED</span>
+                            <AnimatedCounter target={animeStats.animeWatched} />
                         </motion.div>
                         <motion.div className="aw-bounty-card"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: 'spring', delay: 0.6 }}>
-                            <span className="aw-bounty-label">MANGA CHAPTERS BOUNTY</span>
-                            <AnimatedBounty target={animeStats.mangaChapters * 5000} />
+                            <span className="aw-bounty-label">MANGA CHAPTERS</span>
+                            <AnimatedCounter target={animeStats.mangaChapters} />
                         </motion.div>
                         <motion.div className="aw-bounty-card"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: 'spring', delay: 0.7 }}>
-                            <span className="aw-bounty-label">HOURS WATCHED BOUNTY</span>
-                            <AnimatedBounty target={animeStats.hoursWatched * 20000} />
+                            <span className="aw-bounty-label">HOURS LOGGED</span>
+                            <AnimatedCounter target={animeStats.hoursWatched} />
                         </motion.div>
                     </div>
                 </div>
             </header>
+
+            <NarratorBox text="The Grand Line is treacherous... countless anime and manga await out there in the vast ocean of content. Here is the crew of targets I've encountered so far..." />
 
             {/* ── WANTED POSTERS SECTION ── */}
             <section className="aw-section aw-wanted-section">
@@ -212,8 +250,8 @@ const AnimeWorld = () => {
                                     <img src={review.image} alt={review.title} className="aw-wanted-image" loading="lazy" />
                                 </div>
                                 <h3 className="aw-wanted-name">{review.title.toUpperCase()}</h3>
-                                <div className="aw-wanted-bounty">
-                                    ฿ {(review.rating * 100000000).toLocaleString()}
+                                <div className="aw-wanted-bounty aw-power-level">
+                                    PWR: {review.rating}/10
                                 </div>
                             </motion.div>
                         ))}
@@ -248,7 +286,7 @@ const AnimeWorld = () => {
                                 <div className="aw-modal-panel aw-panel-info">
                                     <h2>{selectedReview.title}</h2>
                                     <p className="aw-jp-text">{selectedReview.japaneseTitle}</p>
-                                    <div className="aw-bounty-stamp">BOUNTY: ฿{(selectedReview.rating * 100000000).toLocaleString()}</div>
+                                    <div className="aw-bounty-stamp aw-power-stamp">THREAT LEVEL: {selectedReview.rating >= 9 ? 'S-CLASS' : selectedReview.rating >= 8 ? 'A-CLASS' : 'B-CLASS'}</div>
                                     <div className="aw-modal-genres">
                                         {selectedReview.genre.map(g => (
                                             <span key={g} className="aw-genre-ink">{g}</span>
@@ -265,6 +303,8 @@ const AnimeWorld = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <NarratorBox text="Not everyone agrees with my Log Pose readings... but out here on the open seas, a pirate stands by his hot takes!" />
 
             {/* ── HOT TAKES (Speech Bubbles) ── */}
             <section className="aw-section aw-speech-section">
@@ -289,6 +329,8 @@ const AnimeWorld = () => {
                     ))}
                 </div>
             </section>
+
+            <NarratorBox text="Every pirate has an origin story... a timeline of arcs that shaped them into who they are today. This is the story of my Otaku Journey." />
 
             {/* ── OTAKU JOURNEY (Manga Pages) ── */}
             <section className="aw-section aw-journey-pages">
