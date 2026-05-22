@@ -1,913 +1,620 @@
-/* ═══════════════════════════════════════════
-   ANIME WORLD — MANGA / COMIC BOOK STYLING
-   ═══════════════════════════════════════════ */
+/* =========================================================================
+   ANIME WORLD - MANGA REDESIGN (ONE PIECE THEME)
+========================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Shippori+Mincho:wght@700&family=Yatra+One&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+JP:wght@400;700;900&family=Permanent+Marker&display=swap');
-
-/* ── CSS Variables ── */
 :root {
-    --aw-bg: #0a0a0f;
-    --aw-surface: #12121a;
-    --aw-border: #2a2a3a;
-    --aw-accent: #ff2d55;
-    --aw-accent2: #ff6b35;
-    --aw-cyan: #00f7ff;
-    --aw-yellow: #ffd700;
-    --aw-purple: #8b5cf6;
-    --aw-text: #e8e8f0;
-    --aw-text-muted: #8888aa;
-    --aw-panel-border: 4px solid #222;
-    --aw-font-manga: 'Bangers', 'Impact', sans-serif;
-    --aw-font-marker: 'Permanent Marker', cursive;
-    --aw-font-jp: 'Noto Sans JP', sans-serif;
+  --manga-paper: #f9f4e8;
+  --manga-ink: #111111;
+  --manga-red: #d93829;     /* Luffy's vest */
+  --manga-yellow: #f1c40f;  /* Straw hat */
+  --manga-blue: #2980b9;    /* Grand Line Ocean */
+  --manga-border: 4px solid var(--manga-ink);
+  
+  --font-comic: 'Bangers', cursive;
+  --font-marker: 'Permanent Marker', cursive;
+  --font-japanese: 'Shippori Mincho', serif;
+  --font-wanted: 'Yatra One', serif;
 }
 
-/* ── Page Base ── */
-.aw-page {
-    position: relative;
-    min-height: 100vh;
-    background: var(--aw-bg);
-    color: var(--aw-text);
-    overflow-x: hidden;
-    font-family: 'Inter', var(--aw-font-jp), sans-serif;
+/* ── Base Page Layout ── */
+.aw-manga-page {
+  background-color: var(--manga-paper);
+  color: var(--manga-ink);
+  min-height: 100vh;
+  padding-bottom: 100px;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-/* ── Halftone Dot Overlay ── */
-.aw-halftone-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0.03;
-    background-image: radial-gradient(circle, #fff 1px, transparent 1px);
-    background-size: 6px 6px;
+/* ── Halftone & Speed Lines ── */
+.aw-halftone-dots {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+  background-image: radial-gradient(var(--manga-ink) 2px, transparent 2px);
+  background-size: 8px 8px;
 }
 
-/* ═══════════════════
-   HERO PANEL
-   ═══════════════════ */
-.aw-hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    background:
-        linear-gradient(135deg, rgba(255, 45, 85, 0.08) 0%, transparent 50%),
-        linear-gradient(225deg, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-        var(--aw-bg);
-    border-bottom: var(--aw-panel-border);
-    overflow: hidden;
-    z-index: 2;
+.aw-speed-lines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.05;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg 10deg,
+    var(--manga-ink) 10deg 11deg,
+    transparent 11deg 20deg
+  );
+}
+
+/* All content needs to be above fixed backgrounds */
+.aw-manga-hero, .aw-section {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── HERO ── */
+.aw-manga-hero {
+  padding: 120px 20px 60px;
+  text-align: center;
+  border-bottom: var(--manga-border);
+  background: radial-gradient(circle at top, #ffffff, var(--manga-paper));
 }
 
 .aw-hero-inner {
-    text-align: center;
-    max-width: 900px;
-    z-index: 3;
+  position: relative;
 }
 
 .aw-hero-badge {
-    display: inline-block;
-    padding: 0.4rem 1.2rem;
-    background: var(--aw-accent);
-    color: #fff;
-    font-family: var(--aw-font-manga);
-    font-size: 1rem;
-    letter-spacing: 0.2em;
-    border: 3px solid #000;
-    box-shadow: 4px 4px 0 #000;
-    transform: rotate(-3deg);
-    margin-bottom: 2rem;
+  display: inline-block;
+  background: var(--manga-red);
+  color: white;
+  font-family: var(--font-comic);
+  font-size: 1.5rem;
+  padding: 5px 15px;
+  border: var(--manga-border);
+  transform: rotate(-10deg);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  box-shadow: 4px 4px 0 var(--manga-ink);
 }
 
-.aw-hero-title {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.aw-hero-jp {
-    font-family: var(--aw-font-jp);
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    color: var(--aw-accent);
-    font-weight: 900;
-    letter-spacing: 0.3em;
-    text-shadow: 2px 2px 0 #000;
-}
-
-.aw-hero-en {
-    font-family: var(--aw-font-manga);
-    font-size: clamp(3rem, 10vw, 7rem);
-    color: #fff;
-    letter-spacing: 0.05em;
-    line-height: 0.95;
-    text-shadow:
-        4px 4px 0 #000,
-        -2px -2px 0 var(--aw-accent),
-        2px -2px 0 var(--aw-accent);
-    -webkit-text-stroke: 2px #000;
-}
-
-.aw-hero-subtitle {
-    font-family: var(--aw-font-marker);
-    font-size: clamp(1rem, 2.5vw, 1.4rem);
-    color: var(--aw-cyan);
-    opacity: 0.9;
-    margin-bottom: 3rem;
-}
-
-/* Action Lines */
-.aw-action-lines {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 200px;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.aw-action-lines-left {
-    left: 0;
-    background: repeating-linear-gradient(
-        -60deg,
-        transparent,
-        transparent 8px,
-        rgba(255, 255, 255, 0.02) 8px,
-        rgba(255, 255, 255, 0.02) 9px
-    );
-}
-
-.aw-action-lines-right {
-    right: 0;
-    background: repeating-linear-gradient(
-        60deg,
-        transparent,
-        transparent 8px,
-        rgba(255, 255, 255, 0.02) 8px,
-        rgba(255, 255, 255, 0.02) 9px
-    );
-}
-
-/* ── Stats Grid ── */
-.aw-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.2rem;
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.aw-stat-card {
-    background: var(--aw-surface);
-    border: 3px solid var(--aw-border);
-    padding: 1.5rem 1rem;
-    text-align: center;
-    position: relative;
-    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-    transition: transform 0.2s, border-color 0.2s;
-}
-
-.aw-stat-card:hover {
-    border-color: var(--aw-accent);
-    transform: translateY(-4px);
-}
-
-.aw-stat-number {
-    display: block;
-    font-family: var(--aw-font-manga);
-    font-size: 2.2rem;
-    color: var(--aw-yellow);
-    line-height: 1.1;
-}
-
-.aw-stat-icon {
-    font-size: 2rem;
-}
-
-.aw-stat-label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--aw-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-top: 0.4rem;
-}
-
-/* ═══════════════════
-   SECTIONS COMMON
-   ═══════════════════ */
-.aw-section {
-    position: relative;
-    z-index: 2;
-    padding: 5rem 2rem;
-    border-bottom: var(--aw-panel-border);
-}
-
-.aw-section-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.aw-section-title {
-    font-family: var(--aw-font-manga);
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    color: #fff;
-    letter-spacing: 0.05em;
-    text-shadow: 3px 3px 0 #000;
-    -webkit-text-stroke: 1px #000;
-    position: relative;
-    display: inline-block;
+.aw-manga-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .aw-title-jp {
-    display: block;
-    font-family: var(--aw-font-jp);
-    font-size: 0.9rem;
-    color: var(--aw-accent);
-    letter-spacing: 0.4em;
-    font-weight: 700;
-    -webkit-text-stroke: 0;
-    text-shadow: none;
-    margin-bottom: 0.3rem;
+  font-family: var(--font-japanese);
+  font-size: 2.5rem;
+  color: var(--manga-ink);
+  text-shadow: 2px 2px 0 white, 4px 4px 0 var(--manga-red);
 }
 
-.aw-panel-border {
-    width: 80px;
-    height: 4px;
-    background: var(--aw-accent);
-    margin: 1rem auto 0;
-    border-radius: 2px;
-    box-shadow: 0 0 10px rgba(255, 45, 85, 0.4);
+.aw-title-en {
+  font-family: var(--font-comic);
+  font-size: 6rem;
+  line-height: 1;
+  color: var(--manga-yellow);
+  text-shadow: 4px 4px 0 var(--manga-ink), 8px 8px 0 var(--manga-red);
+  letter-spacing: 4px;
 }
 
-/* ═══════════════════
-   REVIEWS SECTION
-   ═══════════════════ */
-.aw-reviews-section {
-    background:
-        linear-gradient(180deg, var(--aw-bg) 0%, rgba(18, 18, 26, 0.95) 100%);
+.aw-manga-subtitle {
+  font-family: var(--font-marker);
+  font-size: 1.5rem;
+  color: var(--manga-ink);
+  margin-bottom: 50px;
 }
 
-/* Search & Filters */
-.aw-filters {
-    max-width: 900px;
-    margin: 0 auto 2.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
+/* Hidden Easter Egg */
+.aw-jolly-roger-egg {
+  font-size: 4rem;
+  cursor: crosshair;
+  position: absolute;
+  top: 0;
+  right: 10%;
+  filter: drop-shadow(2px 2px 0 var(--manga-ink));
 }
 
-.aw-search-box {
-    display: flex;
-    align-items: center;
-    background: var(--aw-surface);
-    border: 2px solid var(--aw-border);
-    border-radius: 0;
-    clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
-    padding: 0.6rem 1.2rem;
-    transition: border-color 0.3s;
+/* DON!! Sound Effect */
+.aw-manga-sfx {
+  font-family: var(--font-japanese);
+  font-weight: 900;
+  color: white;
+  text-shadow: 
+    3px 3px 0 var(--manga-ink),
+    -3px -3px 0 var(--manga-ink),
+    3px -3px 0 var(--manga-ink),
+    -3px 3px 0 var(--manga-ink),
+    8px 8px 0 var(--manga-red);
+  z-index: 100;
+  pointer-events: none;
+}
+.aw-sfx-text { font-size: 5rem; line-height: 1; }
+.aw-sfx-subtext { font-size: 2rem; font-family: var(--font-comic); text-align: center; color: var(--manga-yellow); }
+
+
+/* ── Bounty Stats ── */
+.aw-bounty-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 40px;
 }
 
-.aw-search-box:focus-within {
-    border-color: var(--aw-cyan);
+.aw-bounty-card {
+  background: white;
+  border: var(--manga-border);
+  padding: 15px 25px;
+  box-shadow: 6px 6px 0 var(--manga-ink);
+  transform: rotate(-2deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.aw-search-icon {
-    margin-right: 0.8rem;
-    font-size: 1.1rem;
+.aw-bounty-card:nth-child(even) {
+  transform: rotate(2deg);
+}
+
+.aw-bounty-label {
+  font-family: var(--font-marker);
+  font-size: 1rem;
+  color: var(--manga-red);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.aw-bounty-text {
+  font-family: var(--font-wanted);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--manga-ink);
+}
+
+/* ── Section Headers ── */
+.aw-section {
+  padding: 60px 20px;
+}
+
+.aw-manga-header {
+  position: relative;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.aw-manga-heading {
+  font-family: var(--font-comic);
+  font-size: 4rem;
+  color: white;
+  text-shadow: 3px 3px 0 var(--manga-ink), -3px -3px 0 var(--manga-ink), 3px -3px 0 var(--manga-ink), -3px 3px 0 var(--manga-ink), 8px 8px 0 var(--manga-blue);
+  letter-spacing: 3px;
+  display: inline-block;
+  background: var(--manga-ink);
+  padding: 0 20px;
+  border-radius: 5px;
+}
+
+.aw-ink-slash {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--manga-ink);
+  z-index: -1;
+  transform: translateY(-50%) rotate(-1deg);
+}
+
+/* ── Filters ── */
+.manga-filters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
 .aw-search-input {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--aw-text);
-    font-size: 1rem;
-    font-family: inherit;
+  border: var(--manga-border);
+  padding: 15px 20px;
+  font-family: var(--font-marker);
+  font-size: 1.2rem;
+  width: 300px;
+  box-shadow: 4px 4px 0 var(--manga-ink);
+  outline: none;
 }
-
-.aw-search-input::placeholder {
-    color: var(--aw-text-muted);
-}
-
-.aw-genre-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
+.aw-search-input:focus {
+  background: #fffdf5;
 }
 
 .aw-genre-tag {
-    padding: 0.35rem 0.9rem;
-    background: transparent;
-    border: 2px solid var(--aw-border);
-    color: var(--aw-text-muted);
-    font-size: 0.8rem;
-    font-family: var(--aw-font-manga);
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s;
+  background: white;
+  border: 3px solid var(--manga-ink);
+  padding: 8px 16px;
+  font-family: var(--font-comic);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--manga-ink);
+  transition: all 0.2s;
 }
-
-.aw-genre-tag:hover {
-    border-color: var(--aw-accent);
-    color: var(--aw-accent);
-}
-
 .aw-genre-tag.active {
-    background: var(--aw-accent);
-    border-color: var(--aw-accent);
-    color: #fff;
-    box-shadow: 0 0 12px rgba(255, 45, 85, 0.3);
+  background: var(--manga-yellow);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--manga-ink);
 }
 
-/* Reviews Grid */
-.aw-reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.5rem;
-    max-width: 1100px;
-    margin: 0 auto;
+/* ── WANTED POSTERS (Reviews) ── */
+.aw-wanted-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 40px;
+  padding: 20px;
 }
 
-.aw-review-card {
-    background: var(--aw-surface);
-    border: 3px solid var(--aw-border);
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.3s;
+.aw-wanted-poster {
+  background: #e8dcc4; /* Aged paper */
+  border: var(--manga-border);
+  padding: 15px;
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  /* Torn edge effect using clip-path */
+  clip-path: polygon(0 0, 100% 2%, 98% 100%, 2% 98%);
 }
 
-.aw-review-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 3px solid transparent;
-    transition: border-color 0.3s;
-    z-index: 1;
-    pointer-events: none;
+.aw-wanted-header {
+  font-family: var(--font-wanted);
+  font-size: 4rem;
+  line-height: 1;
+  color: #3b2f21;
+  letter-spacing: 5px;
 }
 
-.aw-review-card:hover {
-    border-color: var(--aw-accent);
+.aw-wanted-dead-alive {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: bold;
+  font-size: 0.9rem;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+  color: #4a3b29;
 }
 
-.aw-review-card:hover::before {
-    border-color: var(--aw-cyan);
+.aw-wanted-image-wrap {
+  width: 100%;
+  aspect-ratio: 3/4;
+  border: 3px solid #3b2f21;
+  position: relative;
+  overflow: hidden;
+  filter: sepia(0.6) contrast(1.2) brightness(0.9);
+  transition: filter 0.3s;
+}
+.aw-wanted-poster:hover .aw-wanted-image-wrap {
+  filter: sepia(0) contrast(1) brightness(1.1);
 }
 
-.aw-review-image-wrap {
-    position: relative;
-    height: 160px;
-    overflow: hidden;
-    border-bottom: 3px solid var(--aw-border);
+.aw-wanted-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.aw-review-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
+.aw-wanted-name {
+  font-family: var(--font-wanted);
+  font-size: 2rem;
+  margin: 15px 0 5px;
+  text-align: center;
+  color: #2b2218;
+  line-height: 1.1;
 }
 
-.aw-review-card:hover .aw-review-image {
-    transform: scale(1.08);
+.aw-wanted-bounty {
+  font-family: var(--font-wanted);
+  font-size: 2.2rem;
+  color: #2b2218;
 }
 
-.aw-review-rating-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--aw-accent);
-    color: #fff;
-    padding: 0.2rem 0.6rem;
-    font-family: var(--aw-font-manga);
-    font-size: 0.9rem;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0 #000;
-}
-
-.aw-review-info {
-    padding: 1rem;
-}
-
-.aw-review-title {
-    font-family: var(--aw-font-manga);
-    font-size: 1.3rem;
-    color: #fff;
-    margin-bottom: 0.2rem;
-    letter-spacing: 0.02em;
-}
-
-.aw-review-jp-title {
-    font-family: var(--aw-font-jp);
-    font-size: 0.75rem;
-    color: var(--aw-text-muted);
-    margin-bottom: 0.6rem;
-}
-
-.aw-review-genres {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-}
-
-.aw-review-genre-chip {
-    padding: 0.15rem 0.5rem;
-    font-size: 0.65rem;
-    border: 1px solid var(--aw-purple);
-    color: var(--aw-purple);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.aw-no-results {
-    text-align: center;
-    padding: 3rem;
-    color: var(--aw-text-muted);
-}
-
-.aw-no-results-emoji {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 1rem;
-}
-
-/* ═══════════════════
-   REVIEW MODAL
-   ═══════════════════ */
+/* ── MODAL PANEL ── */
 .aw-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    backdrop-filter: blur(4px);
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
-.aw-modal-content {
-    background: var(--aw-surface);
-    border: 4px solid var(--aw-border);
-    max-width: 650px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.5);
+.aw-manga-modal {
+  background: var(--manga-paper);
+  border: 6px solid var(--manga-ink);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 15px 15px 0 var(--manga-red);
 }
 
 .aw-modal-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--aw-accent);
-    border: 2px solid #000;
-    color: #fff;
-    width: 36px;
-    height: 36px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: var(--manga-red);
+  color: white;
+  border: 3px solid var(--manga-ink);
+  width: 40px;
+  height: 40px;
+  font-family: var(--font-comic);
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 3px 3px 0 var(--manga-ink);
 }
 
-.aw-modal-close:hover {
-    transform: scale(1.1) rotate(90deg);
+.aw-modal-panel-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 15px;
+  padding: 20px;
 }
 
-.aw-modal-header {
-    display: flex;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    border-bottom: 3px solid var(--aw-border);
+.aw-modal-panel {
+  border: var(--manga-border);
+  padding: 20px;
+  background: white;
+  position: relative;
 }
 
-.aw-modal-image {
-    width: 140px;
-    height: 200px;
-    object-fit: cover;
-    border: 3px solid var(--aw-border);
-    flex-shrink: 0;
+.aw-panel-image {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+  padding: 0;
+  border: 6px solid var(--manga-ink);
+}
+.aw-panel-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.2);
+}
+.aw-manga-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-size: 4px 4px;
+  opacity: 0.3;
+  pointer-events: none;
 }
 
-.aw-modal-title-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    justify-content: center;
+.aw-panel-info {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+.aw-panel-info h2 {
+  font-family: var(--font-comic);
+  font-size: 3rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.aw-jp-text {
+  font-family: var(--font-japanese);
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+.aw-bounty-stamp {
+  font-family: var(--font-wanted);
+  font-size: 2rem;
+  color: var(--manga-red);
+  border: 3px solid var(--manga-red);
+  padding: 5px 10px;
+  display: inline-block;
+  transform: rotate(-5deg);
+  margin-bottom: 15px;
 }
 
-.aw-modal-title-block h2 {
-    font-family: var(--aw-font-manga);
-    font-size: 1.8rem;
-    color: #fff;
-    letter-spacing: 0.02em;
+.aw-genre-ink {
+  display: inline-block;
+  background: var(--manga-ink);
+  color: white;
+  font-family: var(--font-marker);
+  padding: 4px 10px;
+  margin: 0 5px 5px 0;
+  font-size: 0.9rem;
 }
 
-.aw-modal-jp {
-    font-family: var(--aw-font-jp);
-    font-size: 0.85rem;
-    color: var(--aw-text-muted);
+.aw-synopsis {
+  font-family: 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  font-weight: 500;
+  margin-top: 15px;
 }
 
-.aw-modal-genres {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-    margin-top: 0.4rem;
+.aw-panel-review {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  background: var(--manga-yellow);
+}
+.aw-panel-review h4 {
+  font-family: var(--font-comic);
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  text-decoration: underline;
 }
 
-.aw-modal-body {
-    padding: 1.5rem;
+/* ── SPEECH BUBBLES (Hot Takes) ── */
+.aw-speech-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 60px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.aw-modal-section {
-    margin-bottom: 1.2rem;
+.aw-speech-bubble {
+  background: white;
+  border: var(--manga-border);
+  padding: 30px;
+  position: relative;
+  font-family: var(--font-marker);
+  font-size: 1.8rem;
+  box-shadow: 10px 10px 0 var(--manga-red);
+  clip-path: polygon(
+    0% 5%, 5% 0%, 95% 0%, 100% 5%, 
+    100% 95%, 95% 100%, 20% 100%, 
+    15% 120%, 15% 100%, 5% 100%, 0% 95%
+  );
+  margin-bottom: 20px;
 }
 
-.aw-modal-section h4 {
-    font-family: var(--aw-font-manga);
-    font-size: 1.1rem;
-    color: var(--aw-cyan);
-    margin-bottom: 0.4rem;
-    letter-spacing: 0.05em;
+.bubble-right {
+  clip-path: polygon(
+    0% 5%, 5% 0%, 95% 0%, 100% 5%, 
+    100% 95%, 95% 100%, 85% 100%, 
+    85% 120%, 80% 100%, 5% 100%, 0% 95%
+  );
+  box-shadow: -10px 10px 0 var(--manga-blue);
+  text-align: right;
 }
 
-.aw-modal-section p {
-    color: var(--aw-text);
-    line-height: 1.7;
-    font-size: 0.95rem;
+.aw-mood-tag {
+  display: block;
+  font-family: var(--font-comic);
+  color: var(--manga-red);
+  font-size: 1.2rem;
+  margin-bottom: 10px;
 }
 
-.aw-modal-review-text {
-    border-left: 3px solid var(--aw-accent);
-    padding-left: 1rem;
-    font-style: italic;
+/* ── OTAKU JOURNEY (Comic Panels) ── */
+.aw-comic-page {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+  gap: 15px;
+  background: white;
+  padding: 15px;
+  border: var(--manga-border);
+  box-shadow: 10px 10px 0 var(--manga-ink);
 }
 
-.aw-modal-meta {
-    display: flex;
-    gap: 2rem;
-    padding-top: 1rem;
-    border-top: 2px solid var(--aw-border);
-    font-size: 0.85rem;
-    color: var(--aw-text-muted);
-    flex-wrap: wrap;
+.aw-comic-panel {
+  border: var(--manga-border);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--manga-paper);
 }
 
-.aw-modal-meta strong {
-    color: var(--aw-text);
+.panel-type-1 { grid-column: span 12; border-width: 6px; }
+.panel-type-2 { grid-column: span 7; }
+.panel-type-3 { grid-column: span 5; }
+
+.aw-panel-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
 }
 
-/* ── Stars ── */
-.aw-stars {
-    display: flex;
-    gap: 2px;
+.aw-panel-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
 }
 
-.aw-star {
-    font-size: 1.1rem;
+.aw-panel-year {
+  font-family: var(--font-comic);
+  background: var(--manga-ink);
+  color: white;
+  padding: 2px 10px;
+  display: inline-block;
+  margin-bottom: 10px;
 }
 
-.aw-star.filled {
-    color: var(--aw-yellow);
-    text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+.aw-panel-title {
+  font-family: var(--font-wanted);
+  font-size: 2rem;
+  margin-bottom: 10px;
 }
 
-.aw-star.half {
-    color: var(--aw-yellow);
-    opacity: 0.6;
+.aw-panel-desc {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 500;
 }
 
-.aw-star.empty {
-    color: var(--aw-border);
-}
-
-/* ═══════════════════
-   HOT TAKES
-   ═══════════════════ */
-.aw-hottakes-section {
-    background:
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 40px,
-            rgba(255, 255, 255, 0.01) 40px,
-            rgba(255, 255, 255, 0.01) 41px
-        ),
-        var(--aw-bg);
-}
-
-.aw-hottakes-grid {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.aw-hottake-bubble {
-    position: relative;
-    background: var(--aw-surface);
-    border: 3px solid var(--aw-border);
-    padding: 1.5rem 2rem;
-    border-radius: 20px 20px 20px 4px;
-    cursor: default;
-    transition: border-color 0.3s;
-}
-
-.aw-hottake-bubble:nth-child(even) {
-    align-self: flex-end;
-    border-radius: 20px 20px 4px 20px;
-}
-
-.aw-hottake-bubble:hover {
-    border-color: var(--aw-accent);
-}
-
-.aw-hottake-mood {
-    position: absolute;
-    top: -14px;
-    left: 16px;
-    font-size: 1.6rem;
-    background: var(--aw-bg);
-    padding: 0 0.4rem;
-    border: 2px solid var(--aw-border);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.aw-hottake-bubble:nth-child(even) .aw-hottake-mood {
-    left: auto;
-    right: 16px;
-}
-
-.aw-hottake-text {
-    font-family: var(--aw-font-marker);
-    font-size: 1.15rem;
-    color: var(--aw-text);
-    line-height: 1.6;
-}
-
-.aw-bubble-tail {
-    position: absolute;
-    bottom: -10px;
-    left: 24px;
-    width: 0;
-    height: 0;
-    border-left: 12px solid transparent;
-    border-right: 12px solid transparent;
-    border-top: 12px solid var(--aw-border);
-}
-
-.aw-hottake-bubble:nth-child(even) .aw-bubble-tail {
-    left: auto;
-    right: 24px;
-}
-
-/* ═══════════════════
-   OTAKU JOURNEY TIMELINE
-   ═══════════════════ */
-.aw-journey-section {
-    background:
-        linear-gradient(180deg, var(--aw-bg) 0%, rgba(139, 92, 246, 0.03) 50%, var(--aw-bg) 100%);
-}
-
-.aw-timeline {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem 0;
-}
-
-.aw-timeline-line {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(
-        180deg,
-        transparent 0%,
-        var(--aw-accent) 10%,
-        var(--aw-purple) 50%,
-        var(--aw-cyan) 90%,
-        transparent 100%
-    );
-    transform: translateX(-50%);
-}
-
-.aw-timeline-item {
-    position: relative;
-    width: 45%;
-    margin-bottom: 3rem;
-}
-
-.aw-timeline-item.left {
-    margin-right: auto;
-    padding-right: 2rem;
-    text-align: right;
-}
-
-.aw-timeline-item.right {
-    margin-left: auto;
-    padding-left: 2rem;
-    text-align: left;
-}
-
-.aw-timeline-dot {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
-    background: var(--aw-surface);
-    border: 3px solid var(--aw-accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    z-index: 3;
-    box-shadow: 0 0 15px rgba(255, 45, 85, 0.3);
-}
-
-.aw-timeline-item.left .aw-timeline-dot {
-    right: -22px;
-}
-
-.aw-timeline-item.right .aw-timeline-dot {
-    left: -22px;
-}
-
-.aw-timeline-card {
-    background: var(--aw-surface);
-    border: 3px solid var(--aw-border);
-    padding: 1.2rem 1.5rem;
-    transition: border-color 0.3s, transform 0.3s;
-}
-
-.aw-timeline-card:hover {
-    border-color: var(--aw-cyan);
-    transform: translateY(-2px);
-}
-
-.aw-timeline-year {
-    font-family: var(--aw-font-manga);
-    font-size: 1.6rem;
-    color: var(--aw-accent);
-    letter-spacing: 0.05em;
-}
-
-.aw-timeline-title {
-    font-family: var(--aw-font-manga);
-    font-size: 1.2rem;
-    color: #fff;
-    margin: 0.3rem 0 0.5rem;
-    letter-spacing: 0.03em;
-}
-
-.aw-timeline-desc {
-    font-size: 0.9rem;
-    color: var(--aw-text-muted);
-    line-height: 1.6;
-}
-
-/* ═══════════════════
-   EXIT PORTAL
-   ═══════════════════ */
+/* ── EXIT GOMU BUTTON ── */
 .aw-exit-section {
-    text-align: center;
-    padding: 6rem 2rem;
-    border-bottom: none;
+  text-align: center;
+  margin-top: 80px;
+}
+.aw-manga-text {
+  font-family: var(--font-marker);
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
-.aw-exit-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+.aw-gomu-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-family: var(--font-comic);
+  font-size: 3rem;
+  color: var(--manga-ink);
+  background: var(--manga-yellow);
+  padding: 20px 60px;
+  border: 6px solid var(--manga-ink);
+  box-shadow: 8px 8px 0 var(--manga-red);
+  transform-origin: left center;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
 }
 
-.aw-exit-text {
-    font-family: var(--aw-font-marker);
-    font-size: 1.3rem;
-    color: var(--aw-text-muted);
+.aw-gomu-btn:hover {
+  transform: scaleX(1.3) scaleY(0.9);
+  background: var(--manga-red);
+  color: white;
+  box-shadow: 15px 15px 0 var(--manga-ink);
 }
 
-.aw-exit-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 1rem 2.5rem;
-    background: transparent;
-    border: 3px solid var(--aw-cyan);
-    color: var(--aw-cyan);
-    font-family: var(--aw-font-manga);
-    font-size: 1.2rem;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
-    transition: all 0.3s;
-    cursor: pointer;
+.aw-gomu-inner {
+  display: block;
+  transition: transform 0.4s;
 }
 
-.aw-exit-btn:hover {
-    background: var(--aw-cyan);
-    color: #000;
-    box-shadow: 0 0 25px rgba(0, 247, 255, 0.4);
+.aw-gomu-btn:hover .aw-gomu-inner {
+  transform: scaleX(0.77); /* counter stretch text */
 }
 
-.aw-exit-jp {
-    font-family: var(--aw-font-jp);
-    font-size: 0.8rem;
-    opacity: 0.7;
-}
-
-/* ═══════════════════
-   RESPONSIVE
-   ═══════════════════ */
+/* Responsive */
 @media (max-width: 768px) {
-    .aw-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .aw-reviews-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .aw-timeline-line {
-        left: 20px;
-    }
-
-    .aw-timeline-item {
-        width: calc(100% - 50px);
-        margin-left: 50px !important;
-        margin-right: 0 !important;
-        padding-left: 1.5rem !important;
-        padding-right: 0 !important;
-        text-align: left !important;
-    }
-
-    .aw-timeline-dot {
-        left: -34px !important;
-        right: auto !important;
-    }
-
-    .aw-modal-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .aw-modal-image {
-        width: 100%;
-        max-width: 200px;
-        height: 140px;
-    }
-
-    .aw-hottake-bubble,
-    .aw-hottake-bubble:nth-child(even) {
-        align-self: stretch;
-        border-radius: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .aw-section {
-        padding: 3rem 1rem;
-    }
-
-    .aw-hero {
-        padding: 3rem 1rem;
-    }
-
-    .aw-stats-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.8rem;
-    }
-
-    .aw-stat-number {
-        font-size: 1.6rem;
-    }
-
-    .aw-exit-btn {
-        font-size: 1rem;
-        padding: 0.8rem 1.5rem;
-    }
+  .aw-title-en { font-size: 3.5rem; }
+  .aw-manga-heading { font-size: 2.5rem; }
+  .aw-modal-panel-layout { grid-template-columns: 1fr; }
+  .aw-panel-image { grid-column: 1; grid-row: 1; }
+  .aw-panel-info { grid-column: 1; grid-row: 2; }
+  .aw-panel-review { grid-column: 1; grid-row: 3; }
+  
+  .panel-type-2, .panel-type-3 { grid-column: span 12; }
+  
+  .aw-speech-bubble { clip-path: none; border-radius: 20px; }
+  .aw-speech-bubble::after { display: none; }
 }
