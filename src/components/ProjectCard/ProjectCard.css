@@ -1,0 +1,146 @@
+/* ===============================================
+   Project Card Styles
+   =============================================== */
+
+.project-card {
+    break-inside: avoid;
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-card:hover {
+    border-color: rgba(0, 247, 255, 0.3);
+    transform: translateY(-8px);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 60px rgba(82, 39, 255, 0.1);
+}
+
+/* Image */
+.card-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.project-card:hover .card-image {
+    transform: scale(1.05);
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.project-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.view-project {
+    background: linear-gradient(135deg, #5227ff, #00f7ff);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.project-card:hover .view-project {
+    transform: translateY(0);
+}
+
+/* Content */
+.card-content {
+    padding: 24px;
+}
+
+.card-category {
+    display: inline-block;
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.card-category.application {
+    background: rgba(82, 39, 255, 0.2);
+    color: #b19eef;
+}
+
+.card-category.website {
+    background: rgba(0, 247, 255, 0.15);
+    color: #00f7ff;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 10px;
+    transition: color 0.3s ease;
+}
+
+.project-card:hover .card-title {
+    color: #00f7ff;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.6;
+    margin: 0 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.project-card.large .card-description {
+    -webkit-line-clamp: 5;
+}
+
+/* Tech Tags */
+.card-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tech-tag {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Large card variation */
+.project-card.large .card-image {
+    height: 280px;
+    object-fit: cover;
+}

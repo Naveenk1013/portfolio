@@ -1,0 +1,98 @@
+.card-swap-container {
+    position: relative;
+    perspective: 900px;
+    overflow: visible;
+}
+
+.swap-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(145deg, rgba(39, 30, 55, 0.9) 0%, rgba(20, 15, 30, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+    transform-style: preserve-3d;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.swap-card:hover {
+    border-color: rgba(0, 247, 255, 0.3);
+}
+
+/* Experience Card Styling */
+.exp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.exp-card-company {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #00f7ff;
+    margin: 0;
+}
+
+.exp-card-duration {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.exp-card-role {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 15px 0;
+}
+
+.exp-card-description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+}
+
+.exp-card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.exp-skill-tag {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    background: rgba(82, 39, 255, 0.2);
+    border: 1px solid rgba(82, 39, 255, 0.3);
+    border-radius: 20px;
+    color: #b19eef;
+}
+
+@media (max-width: 768px) {
+    .card-swap-container {
+        transform: scale(0.75);
+    }
+
+    .exp-card-company {
+        font-size: 1.2rem;
+    }
+
+    .exp-card-role {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-swap-container {
+        transform: scale(0.55);
+    }
+}
