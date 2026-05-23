@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { animeStats, animeReviews, hotTakes, journeyMilestones, allGenres } from '../../data/animeData';
 import './AnimeWorld.css';
+import AnimeAssessor from './AnimeAssessor';
 
 /* ── Animated Counter ── */
 const AnimatedCounter = ({ target, duration = 2500 }) => {
@@ -359,6 +360,11 @@ const AnimeWorld = () => {
                     ))}
                 </div>
             </section>
+
+            <NarratorBox text="But the seas are infinite, and every crew needs to map their own journey. Are you a legendary captain or a mere deckhand? Open your logbook and let the Grand Line judge your soul!" />
+
+            {/* ── TASTE ASSESSOR SECTION ── */}
+            <AnimeAssessor />
 
             {/* ── GOMU GOMU EXIT PORTAL ── */}
             <section className="aw-section aw-exit-section">

@@ -12,6 +12,12 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 </instructions>
 
 <changelog>
+## 2026-05-23
+- Implemented `AnimeAssessor.jsx` MVP component using Jikan REST API v4 for real-time search.
+- Added client-side tallying algorithm for "Taste Tester" to assign Otaku Archetypes based on genre frequencies.
+- Created `AnimeAssessor.css` with manga-styled shaking skull animations and speech bubbles.
+- Mounted `AnimeAssessor` in `AnimeWorld.jsx` with a new `NarratorBox` introduction.
+
 ## 2026-05-22
 - Created `src/data/animeData.js`: 8 seeded reviews, 6 hot takes, 7 journey milestones, genre list.
 - Created `src/components/PortalTransition/PortalTransition.jsx` + `.css`: GSAP speed lines, screen shake, impact text.

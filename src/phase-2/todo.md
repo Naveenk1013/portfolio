@@ -45,10 +45,12 @@ This block powers chat suggestion chips and next-step recommendations. Keep it f
     Use IntersectionObserver to animate cards in as the user scrolls for a more dynamic feel.
   </todo>
 
-  <todo id="anime-counter" status="pending">
+  <todo id="anime-counter" status="completed">
     Animated counter on hero stats.
     Make the "Anime Watched" number count up when the hero loads for extra impact.
   </todo>
 </task_backlog>
 
 now comes the hard part we have to merge the project let me give you the remote github repo. lets hope the merge dont conflict.https://github.com/Naveenk1013/portfolio.git and remember that is already an updated and refined version
+
+we have to add another feature of anime checklist in which we can let the user select and add anime they have watched into a list, we have to make an architecture for the algorithm which can judjge them and can grade them also like which category of anime fan they are based on their watched anime and the algorithm should reccomemnt the next anime with the summary and we can use different open source free anime api (Jikan, anilist, anichart ) for making this a polished and professional kind of a feature the main MVP of our story.
