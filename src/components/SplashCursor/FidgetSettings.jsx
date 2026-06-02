@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiSliders } from 'react-icons/fi';
 import './FidgetSettings.css';
 
 const FidgetSettings = ({ settings, onSettingChange, isZenMode, onToggleZen }) => {
@@ -27,7 +28,7 @@ const FidgetSettings = ({ settings, onSettingChange, isZenMode, onToggleZen }) =
     return (
         <div className={`fidget-settings ${isOpen ? 'open' : ''}`}>
             <button className="fidget-toggle-btn" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Fidget Settings">
-                <span className="fidget-icon">✨</span>
+                <FiSliders className="fidget-icon" />
             </button>
             
             <div className="fidget-panel">
