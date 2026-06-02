@@ -22,7 +22,22 @@ const SmoothScroll = ({ children }) => {
 
     requestAnimationFrame(raf);
 
+    // Intercept all anchor clicks for smooth scrolling without changing URL
+    const handleAnchorClick = (e) => {
+      const target = e.target.closest('a[href^="#"]');
+      if (target) {
+        const href = target.getAttribute('href');
+        if (href && href !== '#' && href !== '#/') {
+          e.preventDefault();
+          lenis.scrollTo(href);
+        }
+      }
+    };
+    
+    document.body.addEventListener('click', handleAnchorClick);
+
     return () => {
+      document.body.removeEventListener('click', handleAnchorClick);
       lenis.destroy();
     };
   }, []);

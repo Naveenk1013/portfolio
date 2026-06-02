@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TextPressure from '../TextPressure/TextPressure';
 import CinematicTitle from './CinematicTitle';
 import ProfileCard from '../ProfileCard/ProfileCard';
-import PortalTransition from '../PortalTransition/PortalTransition';
 import './Hero.css';
 
 const PORTAL_CLICK_THRESHOLD = 6;
@@ -17,6 +17,7 @@ const textArray = [
 ];
 
 const Hero = () => {
+    const navigate = useNavigate();
     const [typedText, setTypedText] = useState('');
     const [textArrayIndex, setTextArrayIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
@@ -24,7 +25,6 @@ const Hero = () => {
 
     // Easter egg state
     const [avatarClicks, setAvatarClicks] = useState(0);
-    const [portalActive, setPortalActive] = useState(false);
     const [avatarWiggle, setAvatarWiggle] = useState(false);
     const clickTimerRef = useRef(null);
 
@@ -55,13 +55,11 @@ const Hero = () => {
     }, [charIndex, isDeleting, textArrayIndex]);
 
     const handleContactClick = () => {
-        window.location.href = '#contact';
+        document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     // Easter egg: 6-click avatar handler
     const handleAvatarClick = useCallback(() => {
-        if (portalActive) return;
-
         // Reset inactivity timer
         if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
 
@@ -73,15 +71,15 @@ const Hero = () => {
         setTimeout(() => setAvatarWiggle(false), 300);
 
         if (newCount >= PORTAL_CLICK_THRESHOLD) {
-            // ACTIVATE PORTAL!
-            setPortalActive(true);
+            // ACTIVATE PORTAL IMMEDATELY
+            navigate('/anime');
         } else {
             // Auto-reset after inactivity
             clickTimerRef.current = setTimeout(() => {
                 setAvatarClicks(0);
             }, CLICK_RESET_DELAY);
         }
-    }, [avatarClicks, portalActive]);
+    }, [avatarClicks, navigate]);
 
     // Cleanup timer on unmount
     useEffect(() => {
@@ -161,12 +159,6 @@ const Hero = () => {
                     <div className="wheel"></div>
                 </div>
             </div>
-
-            {/* Portal Transition Overlay */}
-            <PortalTransition
-                active={portalActive}
-                onComplete={() => setPortalActive(false)}
-            />
         </section>
     );
 };

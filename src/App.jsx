@@ -11,6 +11,7 @@ import Projects from './components/Projects/Projects';
 import Contact from './components/Contact/Contact';
 import CaseStudyDashboard from './components/CaseStudies/CaseStudyDashboard';
 import SplashCursor from './components/SplashCursor/SplashCursor';
+import FidgetSettings from './components/SplashCursor/FidgetSettings';
 import SmoothScroll from './components/SmoothScroll/SmoothScroll';
 import ScrollProgress from './components/ui/ScrollProgress';
 import SectionReveal from './components/ui/SectionReveal';
@@ -35,11 +36,71 @@ const socialItems = [
 function App() {
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [isZenMode, setIsZenMode] = useState(false);
+  const [fidgetSettings, setFidgetSettings] = useState({
+    multiTouch: true,
+    pressure: true,
+    gyro: false
+  });
 
   const handleViewDashboard = (study) => {
     setSelectedStudy(study);
     setShowDashboard(true);
   };
+
+  const handleSettingChange = (key, value) => {
+    setFidgetSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const toggleZenMode = () => {
+    setIsZenMode(prev => !prev);
+  };
+
+  if (isZenMode) {
+    return (
+      <div style={{ width: '100vw', height: '100vh', background: 'black', overflow: 'hidden' }}>
+        <SplashCursor settings={fidgetSettings} />
+        
+        <button 
+          onClick={toggleZenMode}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 1001,
+            padding: '10px 20px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '20px',
+            color: 'white',
+            fontFamily: '"Space Grotesk", sans-serif',
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          ← Exit Canvas
+        </button>
+
+        <FidgetSettings 
+          settings={fidgetSettings} 
+          onSettingChange={handleSettingChange} 
+          isZenMode={isZenMode}
+          onToggleZen={toggleZenMode}
+        />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -48,7 +109,13 @@ function App() {
           <ScrollProgress />
           
           {/* Splash Cursor Effect */}
-          <SplashCursor />
+          <SplashCursor settings={fidgetSettings} />
+          <FidgetSettings 
+            settings={fidgetSettings} 
+            onSettingChange={handleSettingChange}
+            isZenMode={isZenMode}
+            onToggleZen={toggleZenMode}
+          />
 
           {/* Fixed Background - DotGrid handles its own positioning */}
           <DotGrid

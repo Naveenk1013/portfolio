@@ -15,9 +15,15 @@ function SplashCursor({
     SHADING = true,
     COLOR_UPDATE_SPEED = 10,
     BACK_COLOR = { r: 0.5, g: 0, b: 0 },
-    TRANSPARENT = true
+    TRANSPARENT = true,
+    settings = { multiTouch: true, pressure: true, gyro: false }
 }) {
     const canvasRef = useRef(null);
+    const settingsRef = useRef(settings);
+
+    useEffect(() => {
+        settingsRef.current = settings;
+    }, [settings]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -34,6 +40,7 @@ function SplashCursor({
             this.down = false;
             this.moved = false;
             this.color = [0, 0, 0];
+            this.pressure = 0.5;
         }
 
         let config = {
@@ -54,7 +61,10 @@ function SplashCursor({
             TRANSPARENT
         };
 
-        let pointers = [new pointerPrototype()];
+        let pointers = [];
+        for (let i = 0; i < 10; i++) {
+            pointers.push(new pointerPrototype());
+        }
 
         const { gl, ext } = getWebGLContext(canvas);
         if (!ext.supportLinearFiltering) {
@@ -438,6 +448,7 @@ function SplashCursor({
         uniform sampler2D uCurl;
         uniform float curl;
         uniform float dt;
+        uniform vec2 gravity;
 
         void main () {
             float L = texture2D(uCurl, vL).x;
@@ -453,6 +464,7 @@ function SplashCursor({
 
             vec2 velocity = texture2D(uVelocity, vUv).xy;
             velocity += force * dt;
+            velocity += gravity * dt;
             velocity = min(max(velocity, -1000.0), 1000.0);
             gl_FragColor = vec4(velocity, 0.0, 1.0);
         }
@@ -669,7 +681,19 @@ function SplashCursor({
         initFramebuffers();
         let lastUpdateTime = Date.now();
         let colorUpdateTimer = 0.0;
+        let gyroX = 0;
+        let gyroY = 0;
 
+        const deviceOrientationHandler = e => {
+            if (settingsRef.current.gyro) {
+                gyroX = (e.gamma || 0) * 15.0; // left/right
+                gyroY = (e.beta || 0) * -15.0; // front/back (inverted for canvas)
+            }
+        };
+        window.addEventListener('deviceorientation', deviceOrientationHandler);
+
+        let animationFrameId;
+        
         function updateFrame() {
             const dt = calcDeltaTime();
             if (resizeCanvas()) initFramebuffers();
@@ -677,7 +701,7 @@ function SplashCursor({
             applyInputs();
             step(dt);
             render(null);
-            requestAnimationFrame(updateFrame);
+            animationFrameId = requestAnimationFrame(updateFrame);
         }
 
         function calcDeltaTime() {
@@ -730,6 +754,11 @@ function SplashCursor({
             gl.uniform1i(vorticityProgram.uniforms.uVelocity, velocity.read.attach(0));
             gl.uniform1i(vorticityProgram.uniforms.uCurl, curl.attach(1));
             gl.uniform1f(vorticityProgram.uniforms.curl, config.CURL);
+            let gx = settingsRef.current.gyro ? gyroX : 0;
+            let gy = settingsRef.current.gyro ? gyroY : 0;
+            if (vorticityProgram.uniforms.gravity) {
+                gl.uniform2f(vorticityProgram.uniforms.gravity, gx, gy);
+            }
             gl.uniform1f(vorticityProgram.uniforms.dt, dt);
             blit(velocity.write);
             velocity.swap();
@@ -798,9 +827,10 @@ function SplashCursor({
         }
 
         function splatPointer(pointer) {
-            let dx = pointer.deltaX * config.SPLAT_FORCE;
-            let dy = pointer.deltaY * config.SPLAT_FORCE;
-            splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color);
+            let pressureScale = settingsRef.current.pressure ? pointer.pressure * 2.0 : 1.0;
+            let dx = pointer.deltaX * config.SPLAT_FORCE * pressureScale;
+            let dy = pointer.deltaY * config.SPLAT_FORCE * pressureScale;
+            splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color, pressureScale);
         }
 
         function clickSplat(pointer) {
@@ -813,13 +843,13 @@ function SplashCursor({
             splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color);
         }
 
-        function splat(x, y, dx, dy, color) {
+        function splat(x, y, dx, dy, color, radiusScale = 1.0) {
             splatProgram.bind();
             gl.uniform1i(splatProgram.uniforms.uTarget, velocity.read.attach(0));
             gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
             gl.uniform2f(splatProgram.uniforms.point, x, y);
             gl.uniform3f(splatProgram.uniforms.color, dx, dy, 0.0);
-            gl.uniform1f(splatProgram.uniforms.radius, correctRadius(config.SPLAT_RADIUS / 100.0));
+            gl.uniform1f(splatProgram.uniforms.radius, correctRadius((config.SPLAT_RADIUS * radiusScale) / 100.0));
             blit(velocity.write);
             velocity.swap();
 
@@ -835,7 +865,7 @@ function SplashCursor({
             return radius;
         }
 
-        function updatePointerDownData(pointer, id, posX, posY) {
+        function updatePointerDownData(pointer, id, posX, posY, pressure = 0.5) {
             pointer.id = id;
             pointer.down = true;
             pointer.moved = false;
@@ -846,9 +876,10 @@ function SplashCursor({
             pointer.deltaX = 0;
             pointer.deltaY = 0;
             pointer.color = generateColor();
+            pointer.pressure = pressure;
         }
 
-        function updatePointerMoveData(pointer, posX, posY, color) {
+        function updatePointerMoveData(pointer, posX, posY, color, pressure = 0.5) {
             pointer.prevTexcoordX = pointer.texcoordX;
             pointer.prevTexcoordY = pointer.texcoordY;
             pointer.texcoordX = posX / canvas.width;
@@ -857,6 +888,7 @@ function SplashCursor({
             pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
             pointer.moved = Math.abs(pointer.deltaX) > 0 || Math.abs(pointer.deltaY) > 0;
             pointer.color = color;
+            pointer.pressure = pressure;
         }
 
         function updatePointerUpData(pointer) {
@@ -945,77 +977,55 @@ function SplashCursor({
             return hash;
         }
 
-        window.addEventListener('mousedown', e => {
-            let pointer = pointers[0];
+
+        const pointerDownHandler = e => {
             let posX = scaleByPixelRatio(e.clientX);
             let posY = scaleByPixelRatio(e.clientY);
-            updatePointerDownData(pointer, -1, posX, posY);
+            let pressure = e.pressure !== undefined ? Math.max(0.1, e.pressure) : 0.5;
+            
+            let pointer = pointers.find(p => p.id === -1);
+            if (!pointer || !settingsRef.current.multiTouch) pointer = pointers[0];
+            
+            updatePointerDownData(pointer, e.pointerId, posX, posY, pressure);
             clickSplat(pointer);
-        });
+        };
 
-        document.body.addEventListener('mousemove', function handleFirstMouseMove(e) {
-            let pointer = pointers[0];
+        const pointerMoveHandler = e => {
+            let pointer = pointers.find(p => p.id === e.pointerId);
+            if (!pointer) pointer = pointers[0];
+            
             let posX = scaleByPixelRatio(e.clientX);
             let posY = scaleByPixelRatio(e.clientY);
-            let color = generateColor();
-            updateFrame();
-            updatePointerMoveData(pointer, posX, posY, color);
-            document.body.removeEventListener('mousemove', handleFirstMouseMove);
-        });
-
-        window.addEventListener('mousemove', e => {
-            let pointer = pointers[0];
-            let posX = scaleByPixelRatio(e.clientX);
-            let posY = scaleByPixelRatio(e.clientY);
-            let color = pointer.color;
-            updatePointerMoveData(pointer, posX, posY, color);
-        });
-
-        document.body.addEventListener('touchstart', function handleFirstTouchStart(e) {
-            const touches = e.targetTouches;
-            let pointer = pointers[0];
-            for (let i = 0; i < touches.length; i++) {
-                let posX = scaleByPixelRatio(touches[i].clientX);
-                let posY = scaleByPixelRatio(touches[i].clientY);
-                updateFrame();
-                updatePointerDownData(pointer, touches[i].identifier, posX, posY);
+            let pressure = e.pressure !== undefined ? Math.max(0.1, e.pressure) : 0.5;
+            
+            if (pointer.down || e.pointerType === 'mouse') {
+                updatePointerMoveData(pointer, posX, posY, pointer.color, pressure);
             }
-            document.body.removeEventListener('touchstart', handleFirstTouchStart);
-        });
+        };
 
-        window.addEventListener('touchstart', e => {
-            const touches = e.targetTouches;
-            let pointer = pointers[0];
-            for (let i = 0; i < touches.length; i++) {
-                let posX = scaleByPixelRatio(touches[i].clientX);
-                let posY = scaleByPixelRatio(touches[i].clientY);
-                updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-            }
-        });
-
-        window.addEventListener(
-            'touchmove',
-            e => {
-                const touches = e.targetTouches;
-                let pointer = pointers[0];
-                for (let i = 0; i < touches.length; i++) {
-                    let posX = scaleByPixelRatio(touches[i].clientX);
-                    let posY = scaleByPixelRatio(touches[i].clientY);
-                    updatePointerMoveData(pointer, posX, posY, pointer.color);
-                }
-            },
-            false
-        );
-
-        window.addEventListener('touchend', e => {
-            const touches = e.changedTouches;
-            let pointer = pointers[0];
-            for (let i = 0; i < touches.length; i++) {
+        const pointerUpHandler = e => {
+            let pointer = pointers.find(p => p.id === e.pointerId);
+            if (pointer) {
                 updatePointerUpData(pointer);
+                pointer.id = -1;
             }
-        });
+        };
+
+        window.addEventListener('pointerdown', pointerDownHandler);
+        window.addEventListener('pointermove', pointerMoveHandler);
+        window.addEventListener('pointerup', pointerUpHandler);
+        window.addEventListener('pointercancel', pointerUpHandler);
 
         updateFrame();
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('deviceorientation', deviceOrientationHandler);
+            window.removeEventListener('pointerdown', pointerDownHandler);
+            window.removeEventListener('pointermove', pointerMoveHandler);
+            window.removeEventListener('pointerup', pointerUpHandler);
+            window.removeEventListener('pointercancel', pointerUpHandler);
+        };
     }, []);
 
     return (

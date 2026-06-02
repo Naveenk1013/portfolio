@@ -179,6 +179,16 @@ export const projects = [
         liveUrl: 'https://stylebyrishh.netlify.app',
         image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=600&h=400&fit=crop',
         featured: false
+    },
+    {
+        id: 19,
+        name: 'Synthetix',
+        category: 'application',
+        description: 'A premium, high-fidelity workbench built on the TOON Framework Protocol. Structure, optimize, and bundle raw prompts to prevent downstream attention degradation in long context windows.',
+        techStack: ['React', 'Premium UI', 'Prompt Engineering'],
+        liveUrl: 'https://promptsynthetix.netlify.app/',
+        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop',
+        featured: true
     }
 ];
 
