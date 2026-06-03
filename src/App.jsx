@@ -56,131 +56,121 @@ function App() {
     setIsZenMode(prev => !prev);
   };
 
-  if (isZenMode) {
-    return (
-      <div style={{ width: '100vw', height: '100vh', background: 'black', overflow: 'hidden' }}>
-        <SplashCursor settings={fidgetSettings} />
-        
-        <button 
-          onClick={toggleZenMode}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            zIndex: 1001,
-            padding: '10px 20px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '20px',
-            color: 'white',
-            fontFamily: '"Space Grotesk", sans-serif',
-            fontSize: '0.9rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          ← Exit Canvas
-        </button>
-
-        <FidgetSettings 
-          settings={fidgetSettings} 
-          onSettingChange={handleSettingChange} 
-          isZenMode={isZenMode}
-          onToggleZen={toggleZenMode}
-        />
-      </div>
-    );
-  }
-
   return (
     <>
-      <SmoothScroll>
-        <div className="app">
-          <ScrollProgress />
-          
-          {/* Splash Cursor Effect */}
-          <SplashCursor settings={fidgetSettings} />
-          <FidgetSettings 
-            settings={fidgetSettings} 
-            onSettingChange={handleSettingChange}
-            isZenMode={isZenMode}
-            onToggleZen={toggleZenMode}
-          />
+      {/* Persist SplashCursor globally to prevent WebGL context loss on re-mounts */}
+      <SplashCursor settings={fidgetSettings} />
+      
+      <FidgetSettings 
+        settings={fidgetSettings} 
+        onSettingChange={handleSettingChange}
+        isZenMode={isZenMode}
+        onToggleZen={toggleZenMode}
+      />
 
-          {/* Fixed Background - DotGrid handles its own positioning */}
-          <DotGrid
-            dotSize={5}
-            gap={15}
-            baseColor="#271e37"
-            activeColor="#5227ff"
-            proximity={120}
-            shockRadius={250}
-            shockStrength={5}
-            resistance={750}
-            returnDuration={2.5}
-          />
-
-          {/* Staggered Menu */}
-          <StaggeredMenu
-            position="right"
-            items={menuItems}
-            socialItems={socialItems}
-            displaySocials={true}
-            displayItemNumbering={true}
-            menuButtonColor="#fff"
-            openMenuButtonColor="#fff"
-            changeMenuColorOnOpen={true}
-            colors={['#B19EEF', '#5227FF']}
-            accentColor="#00f7ff"
-            isFixed={true}
-          />
-
-          {/* Main Content */}
-          <main className="main-content">
-            <SectionReveal>
-              <Hero />
-            </SectionReveal>
-            
-            <SectionReveal delay={0.2}>
-              <TechStack />
-            </SectionReveal>
-            
-            <SectionReveal>
-              <About />
-            </SectionReveal>
-            
-            <SectionReveal>
-              <CaseStudies onViewDashboard={handleViewDashboard} />
-            </SectionReveal>
-            
-            <SectionReveal>
-              <Experience />
-            </SectionReveal>
-            
-            <SectionReveal>
-              <Skills />
-            </SectionReveal>
-            
-            <SectionReveal>
-              <Projects />
-            </SectionReveal>
-            
-            <SectionReveal>
-              <Contact />
-            </SectionReveal>
-          </main>
+      {isZenMode ? (
+        <div style={{ width: '100vw', height: '100vh', background: 'black', overflow: 'hidden', position: 'relative', zIndex: 40 }}>
+          <button 
+            onClick={toggleZenMode}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              zIndex: 1001,
+              padding: '10px 20px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '20px',
+              color: 'white',
+              fontFamily: '"Space Grotesk", sans-serif',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            ← Exit Canvas
+          </button>
         </div>
-      </SmoothScroll>
+      ) : (
+        <SmoothScroll>
+          <div className="app">
+            <ScrollProgress />
+            
+            {/* Fixed Background - DotGrid handles its own positioning */}
+            <DotGrid
+              dotSize={5}
+              gap={15}
+              baseColor="#271e37"
+              activeColor="#5227ff"
+              proximity={120}
+              shockRadius={250}
+              shockStrength={5}
+              resistance={750}
+              returnDuration={2.5}
+            />
+
+            {/* Staggered Menu */}
+            <StaggeredMenu
+              position="right"
+              items={menuItems}
+              socialItems={socialItems}
+              displaySocials={true}
+              displayItemNumbering={true}
+              menuButtonColor="#fff"
+              openMenuButtonColor="#fff"
+              changeMenuColorOnOpen={true}
+              colors={['#B19EEF', '#5227FF']}
+              accentColor="#00f7ff"
+              isFixed={true}
+            />
+
+            {/* Main Content */}
+            <main className="main-content">
+              <SectionReveal>
+                <Hero />
+              </SectionReveal>
+              
+              <SectionReveal delay={0.2}>
+                <TechStack />
+              </SectionReveal>
+              
+              <SectionReveal>
+                <About />
+              </SectionReveal>
+              
+              <SectionReveal>
+                <CaseStudies onViewDashboard={handleViewDashboard} />
+              </SectionReveal>
+              
+              <SectionReveal>
+                <Experience />
+              </SectionReveal>
+              
+              <SectionReveal>
+                <Skills />
+              </SectionReveal>
+              
+              <SectionReveal>
+                <Projects />
+              </SectionReveal>
+              
+              <SectionReveal>
+                <Contact />
+              </SectionReveal>
+            </main>
+          </div>
+        </SmoothScroll>
+      )}
 
       {showDashboard && (
         <CaseStudyDashboard 
