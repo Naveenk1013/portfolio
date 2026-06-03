@@ -15,6 +15,7 @@ import FidgetSettings from './components/SplashCursor/FidgetSettings';
 import SmoothScroll from './components/SmoothScroll/SmoothScroll';
 import ScrollProgress from './components/ui/ScrollProgress';
 import SectionReveal from './components/ui/SectionReveal';
+import IntroLoader from './components/IntroLoader/IntroLoader';
 import './App.css'
 
 const menuItems = [
@@ -37,6 +38,7 @@ function App() {
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [fidgetSettings, setFidgetSettings] = useState({
     multiTouch: true,
     pressure: true,
@@ -58,7 +60,10 @@ function App() {
 
   return (
     <>
-      {/* Persist SplashCursor globally to prevent WebGL context loss on re-mounts */}
+      {/* Intro Loader — unmounts after animation completes */}
+      {isLoading && (
+        <IntroLoader onComplete={() => setIsLoading(false)} />
+      )}
       <SplashCursor settings={fidgetSettings} />
       
       <FidgetSettings 

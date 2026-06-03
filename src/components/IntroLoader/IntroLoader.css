@@ -1,0 +1,121 @@
+.intro-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.intro-loader canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Vignette overlay for cinematic depth */
+.intro-loader__vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+    z-index: 2;
+}
+
+/* Tagline at the bottom */
+.intro-loader__tagline {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0);
+    transition: color 1.2s ease;
+    white-space: nowrap;
+}
+
+.intro-loader__tagline.visible {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Progress bar at bottom */
+.intro-loader__progress-track {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 3;
+    overflow: hidden;
+}
+
+.intro-loader__progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00f7ff, #5227ff, #00f7ff);
+    background-size: 200% 100%;
+    animation: progressShimmer 1.5s ease infinite;
+    transition: width 0.3s ease-out;
+}
+
+@keyframes progressShimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* Exit animation */
+.intro-loader.exiting {
+    animation: loaderExit 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+@keyframes loaderExit {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+    }
+    60% {
+        opacity: 0.8;
+        transform: scale(1.05);
+        filter: blur(2px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.15);
+        filter: blur(12px);
+    }
+}
+
+/* Scan line effect */
+.intro-loader__scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 247, 255, 0.01) 2px,
+        rgba(0, 247, 255, 0.01) 4px
+    );
+    opacity: 0.4;
+}
