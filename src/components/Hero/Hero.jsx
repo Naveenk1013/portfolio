@@ -9,11 +9,9 @@ const PORTAL_CLICK_THRESHOLD = 6;
 const CLICK_RESET_DELAY = 3000; // Reset counter after 3s of inactivity
 
 const textArray = [
-    'Frontend Developer',
+    'Frontend Dev',
     'UI/UX Designer',
-    'Tech Enthusiast',
-    'Creative Developer',
-    'Problem Solver'
+    'Tech Paglu',
 ];
 
 const Hero = () => {
@@ -32,23 +30,27 @@ const Hero = () => {
         const currentText = textArray[textArrayIndex];
         let timeout;
 
-        if (isDeleting) {
+        if (!isDeleting && charIndex === currentText.length) {
+            // Fully typed — pause, then start deleting
+            timeout = setTimeout(() => setIsDeleting(true), 2500);
+        } else if (isDeleting && charIndex === 0) {
+            // Fully deleted — pause, then move to next word
+            timeout = setTimeout(() => {
+                setIsDeleting(false);
+                setTextArrayIndex((textArrayIndex + 1) % textArray.length);
+            }, 200);
+        } else if (isDeleting) {
+            // Deleting in progress
             timeout = setTimeout(() => {
                 setTypedText(currentText.substring(0, charIndex - 1));
                 setCharIndex(charIndex - 1);
             }, 50);
         } else {
+            // Typing in progress
             timeout = setTimeout(() => {
                 setTypedText(currentText.substring(0, charIndex + 1));
                 setCharIndex(charIndex + 1);
             }, 80);
-        }
-
-        if (!isDeleting && charIndex === currentText.length) {
-            timeout = setTimeout(() => setIsDeleting(true), 2500);
-        } else if (isDeleting && charIndex === 0) {
-            setIsDeleting(false);
-            setTextArrayIndex((textArrayIndex + 1) % textArray.length);
         }
 
         return () => clearTimeout(timeout);

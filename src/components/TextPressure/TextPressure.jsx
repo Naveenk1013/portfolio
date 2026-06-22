@@ -75,8 +75,11 @@ const TextPressure = ({
 
         const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
 
-        let newFontSize = containerW / (chars.length / 2);
+        // Use a minimum effective length so short strings (during typing) don't blow up the font size
+        const effectiveLength = Math.max(chars.length, 8);
+        let newFontSize = containerW / (effectiveLength / 2);
         newFontSize = Math.max(newFontSize, minFontSize);
+        newFontSize = Math.min(newFontSize, 120); // cap to prevent overflow
 
         setFontSize(newFontSize);
         setScaleY(1);

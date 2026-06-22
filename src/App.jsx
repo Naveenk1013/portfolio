@@ -64,7 +64,9 @@ function App() {
       {isLoading && (
         <IntroLoader onComplete={() => setIsLoading(false)} />
       )}
-      <SplashCursor settings={fidgetSettings} />
+
+      {/* SplashCursor only mounts after IntroLoader finishes to prevent canvas context conflicts */}
+      {!isLoading && <SplashCursor settings={fidgetSettings} />}
       
       <FidgetSettings 
         settings={fidgetSettings} 

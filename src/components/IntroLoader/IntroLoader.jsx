@@ -12,21 +12,32 @@ import './IntroLoader.css';
  *   3 → DETONATE:  Particles explode outward, loader fades away
  */
 
-const PARTICLE_COUNT = 1800;
+const PARTICLE_COUNT = 1200;
 const CONVERGE_DURATION = 2200;   // ms to pull particles into the N
 const HOLD_DURATION = 800;        // ms to hold the formed letter
 const DETONATE_DURATION = 1000;   // ms for explosion
-const MIN_DISPLAY_TIME = 3200;    // minimum total display time
 
 const IntroLoader = ({ onComplete }) => {
     const canvasRef = useRef(null);
     const animFrameRef = useRef(null);
-    const [phase, setPhase] = useState('swarm');
     const [exiting, setExiting] = useState(false);
     const [progress, setProgress] = useState(0);
     const [taglineVisible, setTaglineVisible] = useState(false);
-    const startTimeRef = useRef(Date.now());
+    const [skipVisible, setSkipVisible] = useState(false);
+    const startTimeRef = useRef(0);
     const phaseStartRef = useRef(null);
+    const skippedRef = useRef(false);
+
+    // Skip handler — immediately trigger exit
+    const handleSkip = useCallback(() => {
+        if (skippedRef.current) return;
+        skippedRef.current = true;
+        cancelAnimationFrame(animFrameRef.current);
+        setExiting(true);
+        setTimeout(() => {
+            if (onComplete) onComplete();
+        }, 600); // shorter exit for skip
+    }, [onComplete]);
 
     // Precompute the "N" glyph target positions
     const getGlyphPoints = useCallback((width, height) => {
@@ -45,7 +56,7 @@ const IntroLoader = ({ onComplete }) => {
         // Sample pixel positions where the letter exists
         const imageData = ctx.getImageData(0, 0, width, height);
         const points = [];
-        const step = 3; // sampling density
+        const step = 4; // slightly sparser sampling for perf
 
         for (let y = 0; y < height; y += step) {
             for (let x = 0; x < width; x += step) {
@@ -61,6 +72,8 @@ const IntroLoader = ({ onComplete }) => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
+        startTimeRef.current = Date.now();
 
         const ctx = canvas.getContext('2d');
         let W = window.innerWidth;
@@ -114,15 +127,24 @@ const IntroLoader = ({ onComplete }) => {
         }
 
         // Connection lines between nearby particles (sparse)
-        const MAX_CONNECTIONS = 1200;
+        const MAX_CONNECTIONS = 400;
 
         let currentPhase = 'swarm';
         let phaseTime = 0;
         let lastTime = performance.now();
         let globalProgress = 0;
 
-        // Show tagline after a short delay
+        // Show tagline + skip after a short delay
         setTimeout(() => setTaglineVisible(true), 600);
+        setTimeout(() => setSkipVisible(true), 1000);
+
+        // Keyboard skip (Enter / Space / Escape)
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+                handleSkip();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
 
         const animate = (now) => {
             const dt = Math.min(now - lastTime, 32); // Cap delta time
@@ -135,17 +157,14 @@ const IntroLoader = ({ onComplete }) => {
                 currentPhase = 'converge';
                 phaseStartRef.current = now;
                 phaseTime = 0;
-                setPhase('converge');
             } else if (currentPhase === 'converge' && phaseTime > CONVERGE_DURATION) {
                 currentPhase = 'hold';
                 phaseStartRef.current = now;
                 phaseTime = 0;
-                setPhase('hold');
             } else if (currentPhase === 'hold' && phaseTime > HOLD_DURATION) {
                 currentPhase = 'detonate';
                 phaseStartRef.current = now;
                 phaseTime = 0;
-                setPhase('detonate');
                 // Assign explosion velocities
                 particles.forEach(p => {
                     const angle = Math.atan2(p.y - H / 2, p.x - W / 2);
@@ -225,9 +244,9 @@ const IntroLoader = ({ onComplete }) => {
                     p.detonateAlpha = Math.max(0, 1 - (phaseTime / DETONATE_DURATION));
                 }
 
-                // Store trail
+                // Store trail (reduced from 5 to 3 for perf)
                 p.trail.push({ x: p.x, y: p.y });
-                if (p.trail.length > 5) p.trail.shift();
+                if (p.trail.length > 3) p.trail.shift();
 
                 // Draw trail
                 if (p.trail.length > 1 && currentPhase !== 'hold') {
@@ -249,8 +268,8 @@ const IntroLoader = ({ onComplete }) => {
                 const glowIntensity = currentPhase === 'hold' ?
                     (0.6 + Math.sin(phaseTime * 0.015 + i * 0.1) * 0.4) : 1;
 
-                // Glow
-                if (currentPhase === 'hold' || currentPhase === 'converge') {
+                // Glow — only render for every 3rd particle to save GPU
+                if ((currentPhase === 'hold' || currentPhase === 'converge') && i % 3 === 0) {
                     const glowSize = p.size * (currentPhase === 'hold' ? 4 : 2 + convergeProgress * 2);
                     const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowSize);
                     gradient.addColorStop(0, `hsla(${p.hue}, 100%, 75%, ${drawAlpha * glowIntensity * 0.5})`);
@@ -267,7 +286,7 @@ const IntroLoader = ({ onComplete }) => {
 
                 // Connection lines (only during converge and hold)
                 if ((currentPhase === 'converge' || currentPhase === 'hold') && connectionCount < MAX_CONNECTIONS) {
-                    for (let j = i + 1; j < Math.min(i + 8, particles.length); j++) {
+                    for (let j = i + 1; j < Math.min(i + 6, particles.length); j++) {
                         const p2 = particles[j];
                         const distSq = (p.x - p2.x) ** 2 + (p.y - p2.y) ** 2;
                         const maxDist = currentPhase === 'hold' ? 20 : 30;
@@ -350,8 +369,9 @@ const IntroLoader = ({ onComplete }) => {
         return () => {
             cancelAnimationFrame(animFrameRef.current);
             window.removeEventListener('resize', handleResize);
+            window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [getGlyphPoints, onComplete]);
+    }, [getGlyphPoints, onComplete, handleSkip]);
 
     return (
         <div className={`intro-loader ${exiting ? 'exiting' : ''}`}>
@@ -361,6 +381,13 @@ const IntroLoader = ({ onComplete }) => {
             <div className={`intro-loader__tagline ${taglineVisible ? 'visible' : ''}`}>
                 Architecting Digital Experiences
             </div>
+            <button
+                className={`intro-loader__skip ${skipVisible ? 'visible' : ''}`}
+                onClick={handleSkip}
+                aria-label="Skip intro animation"
+            >
+                Skip <span className="intro-loader__skip-icon">→</span>
+            </button>
             <div className="intro-loader__progress-track">
                 <div
                     className="intro-loader__progress-bar"
