@@ -1,0 +1,1220 @@
+/* ==========================================================================
+   Zen Playground (Fullscreen Interactive Fidget Canvas HUD)
+   ========================================================================== */
+
+.zen-playground {
+    position: fixed;
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-width: 100vw;
+    max-height: 100dvh;
+    background: transparent !important;
+    overflow: hidden;
+    z-index: 10000;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none; /* Let fluid pointer events pass through to canvas underneath */
+}
+
+/* Header Container */
+.zen-header {
+    position: absolute;
+    top: env(safe-area-inset-top, 20px);
+    left: env(safe-area-inset-left, 20px);
+    right: env(safe-area-inset-right, 20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    z-index: 10001;
+    pointer-events: auto; /* Enable clicks on the control bar */
+    padding: 12px 16px;
+}
+
+/* Glass Buttons */
+.zen-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(20, 20, 32, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    color: #ffffff;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.zen-btn:hover {
+    background: rgba(35, 35, 55, 0.85);
+    border-color: rgba(0, 247, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 247, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.zen-btn:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Exit button specific */
+.zen-btn--exit {
+    background: rgba(25, 25, 40, 0.7);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.zen-btn--exit:hover {
+    border-color: #ff385c;
+    box-shadow: 0 4px 20px rgba(255, 56, 92, 0.25);
+}
+
+.zen-back-icon {
+    transform: rotate(180deg);
+    transition: transform 0.25s ease;
+}
+
+.zen-btn--exit:hover .zen-back-icon {
+    transform: rotate(180deg) translateX(3px);
+}
+
+/* Control Bar Capsule */
+.zen-controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 14, 24, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    padding: 6px 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.zen-btn--icon {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    border-radius: 9999px;
+    position: relative;
+}
+
+.zen-btn--active {
+    background: rgba(0, 247, 255, 0.15);
+    border-color: #00f7ff;
+    color: #00f7ff;
+    box-shadow: 0 0 16px rgba(0, 247, 255, 0.3);
+}
+
+/* Signage button dot */
+.zen-signage-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+    margin-left: 2px;
+}
+
+/* Fun button glow pulse */
+.zen-btn--fun {
+    position: relative;
+}
+
+.zen-btn--fun::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #ff385c, #5227ff, #00f7ff, #00ff88);
+    background-size: 300% 300%;
+    z-index: -1;
+    opacity: 0;
+    animation: funGlowCycle 3s ease infinite;
+    transition: opacity 0.3s ease;
+}
+
+.zen-btn--fun:hover::after,
+.zen-btn--fun.zen-btn--active::after {
+    opacity: 0.7;
+}
+
+@keyframes funGlowCycle {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Color dot indicator */
+.zen-theme-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background 0.3s ease;
+}
+
+/* ==========================================================================
+   ON-CANVAS SIGNAGE (Compact Board Mode for Short Text)
+   ========================================================================== */
+
+.zen-signage-board {
+    position: absolute;
+    top: clamp(80px, 14vh, 140px);
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: min(92vw, 680px);
+    padding: 24px 32px 18px;
+    background: rgba(10, 10, 20, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 247, 255, 0.4);
+    box-shadow: 0 0 40px rgba(0, 247, 255, 0.18), inset 0 0 24px rgba(0, 247, 255, 0.08);
+    z-index: 10000;
+    pointer-events: auto; /* Allow clicks to splat and interact */
+    cursor: crosshair;
+    user-select: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    animation: signageBoardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes signageBoardEntrance {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px) scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+.zen-signage-board:hover {
+    box-shadow: 0 0 60px rgba(0, 247, 255, 0.3), inset 0 0 30px rgba(0, 247, 255, 0.15);
+}
+
+/* Corner Reticles */
+.zen-signage-corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: currentColor;
+    border-style: solid;
+    pointer-events: none;
+}
+
+.zen-signage-corner--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-top-left-radius: 16px; }
+.zen-signage-corner--tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; border-top-right-radius: 16px; }
+.zen-signage-corner--bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; border-bottom-left-radius: 16px; }
+.zen-signage-corner--br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-bottom-right-radius: 16px; }
+
+/* Header inside board */
+.zen-signage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.zen-signage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 3px 8px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.zen-signage-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 8px #00ff88;
+    animation: liveDotPulse 1.6s ease infinite;
+}
+
+@keyframes liveDotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.zen-signage-actions {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.zen-signage-action-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zen-signage-action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.zen-signage-action-btn--close:hover {
+    background: rgba(255, 56, 92, 0.3);
+    border-color: #ff385c;
+    color: #ff385c;
+}
+
+/* Neon Title inside board */
+.zen-signage-text-wrap {
+    padding: 6px 0 12px;
+}
+
+.zen-signage-title {
+    margin: 0;
+    font-family: 'Outfit', 'Space Grotesk', -apple-system, sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    line-height: 1.15;
+    word-break: break-word;
+    text-shadow: 0 0 10px currentColor, 0 0 25px currentColor, 0 0 50px currentColor;
+    animation: neonSignFlicker 4s ease infinite;
+}
+
+@keyframes neonSignFlicker {
+    0%, 100% { opacity: 1; }
+    41% { opacity: 1; }
+    42% { opacity: 0.85; }
+    43% { opacity: 1; }
+    88% { opacity: 1; }
+    89% { opacity: 0.9; }
+    90% { opacity: 1; }
+}
+
+.zen-signage-footer {
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+}
+
+.zen-signage-sub {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1.2px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Style Variants for Board */
+.zen-signage--cyber {
+    color: #00f7ff;
+    border-color: rgba(0, 247, 255, 0.5);
+    box-shadow: 0 0 35px rgba(0, 247, 255, 0.2), inset 0 0 20px rgba(0, 247, 255, 0.08);
+}
+
+.zen-signage--cosmic {
+    color: #c084fc;
+    border-color: rgba(192, 132, 252, 0.5);
+    box-shadow: 0 0 35px rgba(192, 132, 252, 0.2), inset 0 0 20px rgba(192, 132, 252, 0.08);
+}
+
+.zen-signage--fire {
+    color: #ff5533;
+    border-color: rgba(255, 85, 51, 0.5);
+    box-shadow: 0 0 35px rgba(255, 85, 51, 0.2), inset 0 0 20px rgba(255, 85, 51, 0.08);
+}
+
+.zen-signage--matrix {
+    color: #00ff88;
+    border-color: rgba(0, 255, 136, 0.5);
+    box-shadow: 0 0 35px rgba(0, 255, 136, 0.2), inset 0 0 20px rgba(0, 255, 136, 0.08);
+}
+
+.zen-signage--rainbow {
+    color: #ff385c;
+    border-color: rgba(255, 56, 92, 0.5);
+    box-shadow: 0 0 35px rgba(255, 56, 92, 0.2), inset 0 0 20px rgba(255, 56, 92, 0.08);
+}
+
+.zen-signage--rainbow .zen-signage-title {
+    background: linear-gradient(90deg, #ff385c, #5227ff, #00f7ff, #00ff88, #ff385c);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbowScroll 6s linear infinite;
+    text-shadow: none;
+    filter: drop-shadow(0 0 18px rgba(0, 247, 255, 0.4));
+}
+
+@keyframes rainbowScroll {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* ==========================================================================
+   ON-CANVAS MARQUEE BANNER (Continuous Scrolling Ribbon for Long Text)
+   ========================================================================== */
+
+.zen-marquee-container {
+    position: absolute;
+    top: clamp(96px, 18vh, 180px);
+    left: 0;
+    width: 100vw;
+    width: 100%;
+    padding: 16px 0;
+    background: rgba(10, 10, 22, 0.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid rgba(0, 247, 255, 0.4);
+    border-bottom: 1px solid rgba(0, 247, 255, 0.4);
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 247, 255, 0.15);
+    overflow: hidden;
+    z-index: 10000;
+    pointer-events: auto; /* Let clicks trigger fluid splats */
+    cursor: crosshair;
+    user-select: none;
+    animation: marqueeEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes marqueeEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scanline effect over marquee */
+.zen-marquee-scanline {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Float tag for marquee */
+.zen-marquee-tag {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(18, 18, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 4px 12px;
+    z-index: 3;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.zen-marquee-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 8px #00ff88;
+    animation: liveDotPulse 1.6s ease infinite;
+}
+
+.zen-marquee-tag-text {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.zen-marquee-tag-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 2px 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zen-marquee-tag-btn:hover {
+    background: rgba(0, 247, 255, 0.25);
+    border-color: #00f7ff;
+    color: #ffffff;
+}
+
+/* Continuous marquee track */
+.zen-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: zenMarqueeScroll linear infinite;
+    will-change: transform;
+}
+
+.zen-marquee-container:hover .zen-marquee-track {
+    animation-play-state: paused;
+}
+
+@keyframes zenMarqueeScroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.zen-marquee-content {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding-right: 32px;
+    white-space: nowrap;
+}
+
+.zen-marquee-text {
+    font-family: 'Outfit', 'Space Grotesk', -apple-system, sans-serif;
+    font-size: clamp(1.2rem, 3.2vw, 2rem);
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px currentColor, 0 0 35px currentColor;
+}
+
+.zen-marquee-glyph {
+    font-family: 'Space Grotesk', monospace;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Color styles for Marquee */
+.zen-marquee--cyber {
+    color: #00f7ff;
+    border-color: rgba(0, 247, 255, 0.4);
+    box-shadow: 0 0 25px rgba(0, 247, 255, 0.15);
+}
+
+.zen-marquee--cosmic {
+    color: #c084fc;
+    border-color: rgba(192, 132, 252, 0.4);
+    box-shadow: 0 0 25px rgba(192, 132, 252, 0.15);
+}
+
+.zen-marquee--fire {
+    color: #ff5533;
+    border-color: rgba(255, 85, 51, 0.4);
+    box-shadow: 0 0 25px rgba(255, 85, 51, 0.15);
+}
+
+.zen-marquee--matrix {
+    color: #00ff88;
+    border-color: rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.15);
+}
+
+.zen-marquee--rainbow {
+    color: #ff385c;
+    border-color: rgba(255, 56, 92, 0.4);
+}
+
+.zen-marquee--rainbow .zen-marquee-text {
+    background: linear-gradient(90deg, #ff385c, #5227ff, #00f7ff, #00ff88, #ff385c);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbowScroll 6s linear infinite;
+    text-shadow: none;
+    filter: drop-shadow(0 0 12px rgba(0, 247, 255, 0.4));
+}
+
+/* ==========================================================================
+   SIGNAGE & MARQUEE INPUT MODAL
+   ========================================================================== */
+
+.zen-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 4, 12, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10005;
+    pointer-events: auto;
+    animation: modalBackdropFade 0.25s ease;
+}
+
+@keyframes modalBackdropFade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.zen-signage-modal {
+    width: 100%;
+    max-width: 540px;
+    background: rgba(14, 14, 26, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 247, 255, 0.15);
+    padding: 24px;
+    color: #ffffff;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.zen-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.zen-modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.zen-modal-icon {
+    color: #00f7ff;
+    filter: drop-shadow(0 0 6px #00f7ff);
+}
+
+.zen-modal-title-group h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.zen-modal-close {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.zen-modal-close:hover {
+    background: rgba(255, 56, 92, 0.2);
+    border-color: #ff385c;
+    color: #ff385c;
+    transform: rotate(90deg);
+}
+
+.zen-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Mode Banner */
+.zen-modal-mode-banner {
+    display: flex;
+}
+
+.zen-mode-badge {
+    width: 100%;
+    font-size: 0.75rem;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.zen-mode-badge--signage {
+    background: rgba(0, 247, 255, 0.1);
+    border: 1px solid rgba(0, 247, 255, 0.3);
+    color: #00f7ff;
+}
+
+.zen-mode-badge--marquee {
+    background: rgba(192, 132, 252, 0.12);
+    border: 1px solid rgba(192, 132, 252, 0.35);
+    color: #c084fc;
+}
+
+/* Textarea Input */
+.zen-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.zen-input-group label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.zen-char-count {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.75rem;
+}
+
+.zen-signage-input {
+    width: 100%;
+    background: rgba(8, 8, 16, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: #ffffff;
+    font-family: 'Space Grotesk', -apple-system, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    resize: none;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.zen-signage-input:focus {
+    border-color: #00f7ff;
+    box-shadow: 0 0 16px rgba(0, 247, 255, 0.25);
+}
+
+.zen-signage-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Section Labels */
+.zen-section-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+}
+
+/* Presets Chips */
+.zen-preset-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.zen-preset-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.75);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zen-preset-chip:hover {
+    background: rgba(0, 247, 255, 0.15);
+    border-color: rgba(0, 247, 255, 0.4);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Style Selector Grid */
+.zen-style-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+}
+
+.zen-style-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zen-style-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.zen-style-btn--active {
+    background: rgba(0, 247, 255, 0.12);
+    border-color: #00f7ff;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 247, 255, 0.2);
+}
+
+.zen-style-preview-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Speed Options */
+.zen-speed-options {
+    display: flex;
+    gap: 8px;
+}
+
+.zen-speed-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zen-speed-btn--active {
+    background: rgba(192, 132, 252, 0.2);
+    border-color: #c084fc;
+    color: #ffffff;
+}
+
+/* Modal Footer */
+.zen-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.zen-modal-btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    outline: none;
+}
+
+.zen-modal-btn--secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.zen-modal-btn--secondary:hover {
+    background: rgba(255, 56, 92, 0.2);
+    border-color: #ff385c;
+    color: #ff385c;
+}
+
+.zen-modal-btn--primary {
+    background: linear-gradient(135deg, #00f7ff, #5227ff);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 18px rgba(0, 247, 255, 0.35);
+}
+
+.zen-modal-btn--primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 247, 255, 0.5);
+}
+
+.zen-modal-btn--primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   FUN FEATURES FLOATING PANEL
+   ========================================================================== */
+
+.zen-fun-panel {
+    position: absolute;
+    top: 84px;
+    right: 24px;
+    z-index: 10001;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zen-fun-panel--visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.zen-fun-panel-inner {
+    background: rgba(16, 16, 28, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 18px 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 247, 255, 0.1);
+    min-width: 290px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.zen-fun-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 8px;
+}
+
+.zen-fun-header-icon {
+    color: #00f7ff;
+}
+
+.zen-fun-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.zen-fun-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    padding: 10px 6px;
+    color: #ffffff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 58px;
+}
+
+.zen-fun-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(0, 247, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.zen-fun-btn:active {
+    transform: translateY(0);
+}
+
+.zen-fun-btn--active {
+    background: rgba(0, 247, 255, 0.15);
+    border-color: #00f7ff;
+    color: #00f7ff;
+    box-shadow: 0 0 14px rgba(0, 247, 255, 0.3);
+}
+
+.zen-fun-btn--fireworks:hover {
+    border-color: #ff385c;
+    box-shadow: 0 0 14px rgba(255, 56, 92, 0.35);
+}
+
+.zen-fun-btn-emoji {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+/* Splat size slider group */
+.zen-fun-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.zen-fun-slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.zen-fun-slider-value {
+    color: #00f7ff;
+    text-shadow: 0 0 8px rgba(0, 247, 255, 0.4);
+}
+
+.zen-fun-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    outline: none;
+    cursor: pointer;
+}
+
+.zen-fun-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00f7ff, #5227ff);
+    box-shadow: 0 0 10px rgba(0, 247, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.zen-fun-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.zen-fun-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00f7ff, #5227ff);
+    box-shadow: 0 0 10px rgba(0, 247, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    border: none;
+}
+
+.zen-fun-slider-markers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-family: 'Space Grotesk', sans-serif;
+    margin-top: 4px;
+}
+
+/* Bottom Helper Toast */
+.zen-guide-pill {
+    position: absolute;
+    bottom: env(safe-area-inset-bottom, 32px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(18, 18, 28, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    padding: 10px 22px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10001;
+}
+
+.zen-guide-pill--hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+}
+
+.zen-guide-sparkle {
+    color: #00f7ff;
+    filter: drop-shadow(0 0 6px #00f7ff);
+}
+
+/* ======== Responsive Breakpoints ======== */
+
+@media (max-width: 768px) {
+    .zen-header {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 6px;
+        gap: 8px;
+    }
+
+    .zen-btn {
+        padding: 8px 12px;
+        font-size: 0.78rem;
+    }
+
+    .zen-btn-label {
+        display: none; /* Icon-only on mobile to save valuable space */
+    }
+
+    .zen-controls-bar {
+        padding: 4px;
+        gap: 6px;
+    }
+
+    .zen-fun-panel {
+        top: 70px;
+        right: 10px;
+        left: 10px;
+    }
+
+    .zen-fun-panel-inner {
+        min-width: unset;
+        padding: 14px 16px;
+    }
+
+    .zen-fun-btn {
+        padding: 10px 4px;
+        font-size: 0.68rem;
+        min-height: 52px;
+    }
+
+    .zen-fun-btn-emoji {
+        font-size: 1.1rem;
+    }
+
+    .zen-signage-board {
+        top: 75px;
+        padding: 18px 20px 14px;
+    }
+
+    .zen-signage-title {
+        font-size: 1.35rem;
+        letter-spacing: 1.5px;
+    }
+
+    .zen-marquee-container {
+        top: 80px;
+        padding: 12px 0;
+    }
+
+    .zen-marquee-tag {
+        display: none; /* Hide floating tag on mobile to maximize banner visibility */
+    }
+
+    .zen-guide-pill {
+        width: 85%;
+        max-width: 340px;
+        font-size: 0.75rem;
+        padding: 8px 14px;
+        text-align: center;
+        justify-content: center;
+        bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .zen-header {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+    }
+
+    .zen-btn {
+        padding: 7px 10px;
+        font-size: 0.72rem;
+    }
+
+    .zen-fun-panel {
+        top: 60px;
+        right: 8px;
+        left: 8px;
+    }
+
+    .zen-fun-btn {
+        padding: 8px 2px;
+        font-size: 0.64rem;
+        min-height: 46px;
+    }
+
+    .zen-signage-board {
+        top: 70px;
+        width: 90vw;
+        padding: 14px 16px 12px;
+    }
+
+    .zen-signage-title {
+        font-size: 1.15rem;
+        letter-spacing: 1px;
+    }
+
+    .zen-signage-modal {
+        padding: 18px;
+    }
+}

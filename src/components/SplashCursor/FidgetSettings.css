@@ -122,9 +122,14 @@
     color: white;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.2s;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .fidget-zen-btn:hover {

@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import ProjectsSkeleton from './components/Skeletons/ProjectsSkeleton'
-import AnimeWorldWrapper from './pages/AnimeWorld/AnimeWorldWrapper'
+import AnimeWorld from './pages/AnimeWorld/AnimeWorld'
 
 const ProjectsGallery = lazy(() => import('./pages/ProjectsGallery/ProjectsGallery.jsx'))
 
@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')).render(
             <ProjectsGallery />
           </Suspense>
         } />
-        <Route path="/anime" element={<AnimeWorldWrapper />} />
+        <Route path="/anime" element={<AnimeWorld />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

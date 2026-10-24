@@ -86,6 +86,12 @@
     margin-bottom: 12px;
 }
 
+.cat-badge-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .card-category.application {
     background: rgba(82, 39, 255, 0.2);
     color: #b19eef;

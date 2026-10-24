@@ -97,6 +97,12 @@
     width: fit-content;
 }
 
+.cat-badge-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .featured-category.application {
     background: rgba(82, 39, 255, 0.2);
     color: #b19eef;

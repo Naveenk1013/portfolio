@@ -1,60 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TextPressure from '../TextPressure/TextPressure';
-import CinematicTitle from './CinematicTitle';
 import ProfileCard from '../ProfileCard/ProfileCard';
+import PortalTransition from '../PortalTransition/PortalTransition';
+import { animeAudio } from '../../utils/animeAudio';
+import { ZapIcon, RocketIcon, SendIcon } from '../icons';
 import './Hero.css';
 
 const PORTAL_CLICK_THRESHOLD = 6;
-const CLICK_RESET_DELAY = 3000; // Reset counter after 3s of inactivity
-
-const textArray = [
-    'Frontend Dev',
-    'UI/UX Designer',
-    'Tech Paglu',
-];
+const CLICK_RESET_DELAY = 3500; // Reset counter after 3.5s of inactivity
 
 const Hero = () => {
-    const navigate = useNavigate();
-    const [typedText, setTypedText] = useState('');
-    const [textArrayIndex, setTextArrayIndex] = useState(0);
-    const [charIndex, setCharIndex] = useState(0);
-    const [isDeleting, setIsDeleting] = useState(false);
-
     // Easter egg state
     const [avatarClicks, setAvatarClicks] = useState(0);
     const [avatarWiggle, setAvatarWiggle] = useState(false);
+    const [isPortalActive, setIsPortalActive] = useState(false);
     const clickTimerRef = useRef(null);
-
-    useEffect(() => {
-        const currentText = textArray[textArrayIndex];
-        let timeout;
-
-        if (!isDeleting && charIndex === currentText.length) {
-            // Fully typed — pause, then start deleting
-            timeout = setTimeout(() => setIsDeleting(true), 2500);
-        } else if (isDeleting && charIndex === 0) {
-            // Fully deleted — pause, then move to next word
-            timeout = setTimeout(() => {
-                setIsDeleting(false);
-                setTextArrayIndex((textArrayIndex + 1) % textArray.length);
-            }, 200);
-        } else if (isDeleting) {
-            // Deleting in progress
-            timeout = setTimeout(() => {
-                setTypedText(currentText.substring(0, charIndex - 1));
-                setCharIndex(charIndex - 1);
-            }, 50);
-        } else {
-            // Typing in progress
-            timeout = setTimeout(() => {
-                setTypedText(currentText.substring(0, charIndex + 1));
-                setCharIndex(charIndex + 1);
-            }, 80);
-        }
-
-        return () => clearTimeout(timeout);
-    }, [charIndex, isDeleting, textArrayIndex]);
 
     const handleContactClick = () => {
         document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -72,16 +31,19 @@ const Hero = () => {
         setAvatarWiggle(true);
         setTimeout(() => setAvatarWiggle(false), 300);
 
+        // Play audio feedback for Haki charge
+        animeAudio.playHakiCharge(newCount);
+
         if (newCount >= PORTAL_CLICK_THRESHOLD) {
-            // ACTIVATE PORTAL IMMEDATELY
-            navigate('/anime');
+            // Trigger Dimensional Slash Portal
+            setIsPortalActive(true);
         } else {
             // Auto-reset after inactivity
             clickTimerRef.current = setTimeout(() => {
                 setAvatarClicks(0);
             }, CLICK_RESET_DELAY);
         }
-    }, [avatarClicks, navigate]);
+    }, [avatarClicks]);
 
     // Cleanup timer on unmount
     useEffect(() => {
@@ -92,34 +54,37 @@ const Hero = () => {
 
     return (
         <section className="hero" id="home">
+            {/* Fullscreen Dimensional Katana Slash Transition */}
+            <PortalTransition
+                active={isPortalActive}
+                onComplete={() => setIsPortalActive(false)}
+            />
+
             <div className="hero-layout">
                 {/* Left Content */}
                 <div className="hero-content">
-                    <div className="hero-subtitle">
-                        Architecting Digital Experiences
+                    {/* Futuristic Cyber Badge */}
+                    <div className="hero-badge-pill">
+                        <span className="hero-badge-beacon" />
+                        <span className="hero-badge-text">Architecting Digital Experiences</span>
+                        <span className="hero-badge-tag">// UI/UX & DEV</span>
                     </div>
-                    {/* Cinematic Title Reveal */}
-                    <div className="hero-title-container">
-                        <CinematicTitle text="NAVEEN KUMAR" />
-                    </div>
-                    <div className="hero-description-pressure">
-                        <TextPressure
-                            text={typedText || ' '}
-                            flex={true}
-                            alpha={false}
-                            stroke={false}
-                            width={true}
-                            weight={true}
-                            italic={true}
-                            textColor="#00f7ff"
-                            minFontSize={32}
-                        />
+
+                    {/* Vibe-Matched Holographic Neon Name Title */}
+                    <div className="hero-title-wrapper">
+                        <h1 className="hero-name-title">
+                            <span className="hero-name-first">NAVEEN </span>
+                            <span className="hero-name-last">KUMAR</span>
+                        </h1>
+                        <div className="hero-title-beam" />
                     </div>
                     <div className="hero-buttons">
                         <a href="#projects" className="btn btn-primary">
+                            <RocketIcon size={18} style={{ marginRight: 8, display: 'inline-flex', verticalAlign: 'middle' }} />
                             <span>View Projects</span>
                         </a>
                         <a href="#contact" className="btn btn-secondary">
+                            <SendIcon size={17} style={{ marginRight: 8, display: 'inline-flex', verticalAlign: 'middle' }} />
                             <span>Get in Touch</span>
                         </a>
                     </div>
@@ -147,10 +112,15 @@ const Hero = () => {
                         onContactClick={handleContactClick}
                         onAvatarClick={handleAvatarClick}
                     />
-                    {/* Click hint indicator */}
+                    {/* Enhanced Click hint indicator */}
                     {avatarClicks > 0 && avatarClicks < PORTAL_CLICK_THRESHOLD && (
                         <div className="hero-click-hint">
-                            {'●'.repeat(avatarClicks)}{'○'.repeat(PORTAL_CLICK_THRESHOLD - avatarClicks)}
+                            <span className="hero-hint-gauge">
+                                <ZapIcon size={16} className="hero-hint-zap" style={{ color: '#ff2d55', marginRight: 5 }} /> HAKI: {avatarClicks}/{PORTAL_CLICK_THRESHOLD}
+                            </span>
+                            <span className="hero-hint-dots">
+                                {'◆'.repeat(avatarClicks)}{'◇'.repeat(PORTAL_CLICK_THRESHOLD - avatarClicks)}
+                            </span>
                         </div>
                     )}
                 </div>

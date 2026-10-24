@@ -12,6 +12,13 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 </instructions>
 
 <changelog>
+## 2026-10-21
+- Created `src/utils/animeAudio.js`: zero-dependency Web Audio synth for katana slashes, taiko drums, and fanfare.
+- Rewrote `PortalTransition.jsx` + `.css`: cinematic Manga Katana Slash, screen shake, and speedlines.
+- Wired 6-click Haki Easter egg in `Hero.jsx` with escalating aura charge and Haki gauge indicator.
+- Overhauled `AnimeWorld.jsx` + `.css`: 3D tilt Wanted Posters with Berry bounties, Den-Den Mushi audio toggle, and voting Hot Takes.
+- Upgraded `AnimeAssessor.jsx` + `.css`: Scouter power scaling, generated user Marine Wanted Poster, and share button.
+
 ## 2026-05-23
 - Implemented `AnimeAssessor.jsx` MVP component using Jikan REST API v4 for real-time search.
 - Added client-side tallying algorithm for "Taste Tester" to assign Otaku Archetypes based on genre frequencies.

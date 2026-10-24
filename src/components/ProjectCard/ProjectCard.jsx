@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { RocketIcon, CompassIcon } from '../icons';
 import './ProjectCard.css';
 
 const ProjectCard = ({ project, index, onClick }) => {
@@ -29,7 +30,11 @@ const ProjectCard = ({ project, index, onClick }) => {
 
             <div className="card-content">
                 <span className={`card-category ${project.category}`}>
-                    {project.category === 'application' ? '🚀 Web App' : '🌐 Website'}
+                    {project.category === 'application' ? (
+                        <span className="cat-badge-inner"><RocketIcon size={14} /> Web App</span>
+                    ) : (
+                        <span className="cat-badge-inner"><CompassIcon size={14} /> Website</span>
+                    )}
                 </span>
                 <h3 className="card-title">{project.name}</h3>
                 <p className="card-description">{project.description}</p>

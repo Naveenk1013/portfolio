@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SparklesIcon } from '../icons';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -55,6 +56,7 @@ const Navbar = () => {
         <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${isHidden ? 'hidden' : ''}`}>
             <div className="nav-content">
                 <div className="logo">
+                    <SparklesIcon size={16} className="logo-sparkle" style={{ marginRight: 6, color: '#00f7ff' }} />
                     <span className="logo-text">NK</span>
                     <div className="logo-glow"></div>
                 </div>

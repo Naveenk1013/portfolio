@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { RocketIcon, CompassIcon } from '../icons';
 import './ProjectDetail.css';
 
 const ProjectDetail = ({ project, onClose }) => {
@@ -24,7 +25,7 @@ const ProjectDetail = ({ project, onClose }) => {
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
                 {/* Close Button */}
-                <button className="detail-close" onClick={onClose}>
+                <button className="detail-close" onClick={onClose} aria-label="Close project modal">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M18 6L6 18M6 6l12 12"/>
                     </svg>
@@ -38,7 +39,11 @@ const ProjectDetail = ({ project, onClose }) => {
                         className="detail-image"
                     />
                     <span className={`detail-category ${project.category}`}>
-                        {project.category === 'application' ? '🚀 Web Application' : '🌐 Client Website'}
+                        {project.category === 'application' ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><RocketIcon size={14} /> Web Application</span>
+                        ) : (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><CompassIcon size={14} /> Client Website</span>
+                        )}
                     </span>
                 </div>
 

@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { FiSliders } from 'react-icons/fi';
+import { SlidersHorizontalIcon, MaximizeIcon } from '../icons';
 import './FidgetSettings.css';
 
 const FidgetSettings = ({ settings, onSettingChange, isZenMode, onToggleZen }) => {
     const [isOpen, setIsOpen] = useState(false);
+
+    // If Zen mode is active, the ZenPlayground HUD takes over with dedicated controls
+    if (isZenMode) return null;
 
     const handleGyroChange = async (e) => {
         const checked = e.target.checked;
@@ -28,7 +31,7 @@ const FidgetSettings = ({ settings, onSettingChange, isZenMode, onToggleZen }) =
     return (
         <div className={`fidget-settings ${isOpen ? 'open' : ''}`}>
             <button className="fidget-toggle-btn" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Fidget Settings">
-                <FiSliders className="fidget-icon" />
+                <SlidersHorizontalIcon size={20} className="fidget-icon" />
             </button>
             
             <div className="fidget-panel">
@@ -75,7 +78,8 @@ const FidgetSettings = ({ settings, onSettingChange, isZenMode, onToggleZen }) =
                             setIsOpen(false);
                         }}
                     >
-                        {isZenMode ? 'Exit Blank Canvas' : 'Enter Blank Canvas'}
+                        <MaximizeIcon size={16} />
+                        <span>Fullscreen Playground</span>
                     </button>
                 </div>
             </div>

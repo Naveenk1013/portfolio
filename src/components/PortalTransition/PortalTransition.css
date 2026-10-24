@@ -1,52 +1,245 @@
-.anime-loader-overlay {
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Shippori+Mincho:wght@700;900&family=Space+Grotesk:wght@700&display=swap');
+
+.portal-manga-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99999;
-    background-color: rgba(10, 10, 10, 0.98);
+    z-index: 999999;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     pointer-events: all;
-    animation: fadeIn 0.3s ease-in forwards;
+    background: #09090e;
+    perspective: 1000px;
 }
 
-.anime-loader-content {
+/* ── Screen Shake on Slash ── */
+.portal-manga-overlay.phase-slash {
+    animation: screenTremor 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes screenTremor {
+    10%, 90% { transform: translate3d(-4px, 2px, 0) rotate(-0.5deg); }
+    20%, 80% { transform: translate3d(6px, -4px, 0) rotate(1deg); }
+    30%, 50%, 70% { transform: translate3d(-8px, 6px, 0) rotate(-1deg); }
+    40%, 60% { transform: translate3d(8px, -6px, 0) rotate(0.8deg); }
+}
+
+/* ── Speedlines ── */
+.portal-speedlines {
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    opacity: 0.35;
+    background: repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        transparent 0deg 4deg,
+        rgba(255, 255, 255, 0.4) 4deg 5deg,
+        transparent 5deg 10deg,
+        rgba(255, 45, 85, 0.5) 10deg 11.5deg,
+        transparent 11.5deg 16deg,
+        rgba(0, 247, 255, 0.4) 16deg 17deg,
+        transparent 17deg 24deg
+    );
+    animation: rotateSpeedlines 2s linear infinite;
+}
+
+@keyframes rotateSpeedlines {
+    from { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    to { transform: rotate(360deg) scale(1); }
+}
+
+/* ── Warning Box ── */
+.portal-warning-box {
+    position: relative;
+    z-index: 20;
+    text-align: center;
+    padding: 30px 50px;
+    background: rgba(15, 10, 25, 0.85);
+    border: 3px solid #ff2d55;
+    box-shadow: 0 0 50px rgba(255, 45, 85, 0.6), inset 0 0 30px rgba(255, 45, 85, 0.3);
+    border-radius: 8px;
+    backdrop-filter: blur(12px);
+}
+
+.portal-kanji-alert {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 900;
+    font-size: 4.5rem;
+    color: #ff2d55;
+    line-height: 1.1;
+    letter-spacing: 8px;
+    text-shadow: 
+        0 0 20px rgba(255, 45, 85, 0.8),
+        3px 3px 0 #fff,
+        6px 6px 0 #000;
+    animation: kanjiPulse 0.4s ease infinite alternate;
+}
+
+@keyframes kanjiPulse {
+    from { transform: scale(0.98); }
+    to { transform: scale(1.04); }
+}
+
+.portal-sub-alert {
+    font-family: 'Bangers', cursive;
+    font-size: 2.2rem;
+    color: #ffd700;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 0 #000;
+    margin-top: 8px;
+}
+
+.portal-warning-status {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 12px;
+}
+
+/* ── Katana Slash Beam ── */
+.portal-slash-container {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.portal-slash-beam {
+    position: absolute;
+    top: 50%;
+    left: -20%;
+    width: 140%;
+    height: 12px;
+    background: #ffffff;
+    box-shadow: 
+        0 0 15px #fff,
+        0 0 35px #ff2d55,
+        0 0 70px #ff2d55,
+        0 0 120px #00f7ff;
+    transform: translateY(-50%) rotate(-35deg);
+    animation: katanaCut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes katanaCut {
+    0% {
+        clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+        height: 24px;
+    }
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        opacity: 1;
+        height: 6px;
+    }
+}
+
+.portal-slash-impact-text {
+    position: absolute;
+    top: 38%;
+    left: 45%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 6.5rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 
+        4px 4px 0 #ff2d55,
+        -4px -4px 0 #ff2d55,
+        4px -4px 0 #ff2d55,
+        -4px 4px 0 #ff2d55,
+        8px 8px 0 #000;
+    z-index: 50;
+    animation: impactPop 0.3s ease-out forwards;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
 }
 
-.anime-spinner {
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(255, 68, 68, 0.2);
-    border-radius: 50%;
-    border-top-color: #ff4444;
-    border-left-color: #ff4444;
-    animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-}
-
-.anime-loader-text {
-    color: #ff4444;
-    font-size: 1.1rem;
-    font-family: 'Space Mono', monospace, sans-serif;
+.portal-slash-impact-text small {
+    font-family: 'Bangers', cursive;
+    font-size: 2.5rem;
+    color: #ffd700;
+    text-shadow: 3px 3px 0 #000;
     letter-spacing: 4px;
-    text-transform: uppercase;
-    animation: pulse 2s infinite;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes impactPop {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(1.3) rotate(-10deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(-12deg); opacity: 1; }
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
+/* ── Split Halves Sliding Apart ── */
+.portal-split-half {
+    position: absolute;
+    inset: 0;
+    background: #09090e;
+    z-index: 30;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.portal-half-top {
+    clip-path: polygon(0 0, 100% 0, 100% 18%, 0 85%);
+    animation: slideTopLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.portal-half-bottom {
+    clip-path: polygon(0 85%, 100% 18%, 100% 100%, 0 100%);
+    animation: slideBottomRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideTopLeft {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-35px, -50px, 0); }
+}
+
+@keyframes slideBottomRight {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(35px, 50px, 0); }
+}
+
+/* ── Gate Flash ── */
+.portal-gate-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    background: radial-gradient(circle at center, #fffef0 0%, #f9f4e8 70%, #d93829 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portal-manga-gate-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
+
+.gate-jp {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #111;
+    letter-spacing: 6px;
+    text-shadow: 2px 2px 0 #fff;
+}
+
+.gate-en {
+    font-family: 'Bangers', cursive;
+    font-size: 4.5rem;
+    color: #d93829;
+    letter-spacing: 5px;
+    text-shadow: 3px 3px 0 #111, 6px 6px 0 #f1c40f;
 }

@@ -1,137 +1,148 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FaSearch, FaPlus, FaTrash, FaBookOpen, FaCrown, FaHourglassHalf, FaExternalLinkAlt, FaRedo } from 'react-icons/fa';
+import { 
+    FaPlus, FaTrash, FaBookOpen, FaCrown, 
+    FaExternalLinkAlt, FaRedo, FaShareAlt, FaCheck, FaSkull,
+    FaAnchor, FaSkullCrossbones, FaTimes
+} from 'react-icons/fa';
+import { 
+    SearchIcon, 
+    ZapIcon, 
+    TelescopeIcon, 
+    SparklesIcon 
+} from '../../components/icons';
+import { animeAudio } from '../../utils/animeAudio';
 import './AnimeAssessor.css';
 
-// Fallback recommendations in case of Jikan API rate limit or network issues
+// Fallback recommendations in case of Jikan/AniList rate limit or offline
 const FALLBACK_RECOMMENDATIONS = {
     'Battle Shonen Junkie': {
         title: 'Hunter x Hunter (2011)',
         score: 9.04,
         image_url: 'https://cdn.myanimelist.net/images/anime/1337/115025.jpg',
-        synopsis: 'Hunter x Hunter is set in a world where Hunters exist to perform all manner of dangerous tasks like capturing criminals and bravely searching for lost treasures in uncharted territories. Twelve-year-old Gon Freecss is determined to become the best Hunter possible in hopes of finding his father, who was a Hunter himself and had long ago abandoned his young son. However, Gon soon realizes the path to achieving his goals is much more challenging than he could have ever imagined.',
+        synopsis: 'Twelve-year-old Gon Freecss sets out to become a Hunter in hopes of finding his legendary father. Alongside Killua, Kurapika, and Leorio, he faces brutal Hunter exams, phantom assassins, and perilous nen training.',
         url: 'https://myanimelist.net/anime/11061/Hunter_x_Hunter_2011'
     },
     'Grand Line Explorer': {
         title: 'One Piece',
         score: 8.72,
         image_url: 'https://cdn.myanimelist.net/images/anime/1244/138851.jpg',
-        synopsis: 'Gol D. Roger was known as the "Pirate King," the strongest and most infamous being to have sailed the Grand Line. The capture and execution of Roger by the World Government brought a change throughout the world. His last words before his death revealed the existence of the greatest treasure in the world, One Piece. It was this revelation that brought about the Grand Age of Pirates, men who dreamed of finding One Piece—which promises an unlimited amount of riches and fame—and quite possibly the pinnacle of glory and the title of the Pirate King.',
+        synopsis: 'Monkey D. Luffy sets sail across the Grand Line to assemble the Straw Hat Pirates and claim the ultimate treasure, the One Piece, to become the King of the Pirates.',
         url: 'https://myanimelist.net/anime/21/One_Piece'
     },
     'Comedic Reliever': {
         title: 'Gintama',
         score: 8.94,
         image_url: 'https://cdn.myanimelist.net/images/anime/10/73274.jpg',
-        synopsis: 'Sakata Gintoki is a samurai living in an era when aliens have invaded and taken over feudal Japan. To make ends meet, Gintoki runs a "Yorozuya" (Odd Jobs) business alongside his teenager apprentice Shinpachi Shimura and the super-strong alien girl Kagura. Together, they take on everything from finding lost cats to saving the world, all while barely making rent and causing absolute chaotic comedy wherever they go.',
+        synopsis: 'In an alien-conquered feudal Japan, silver-haired samurai Gintoki Sakata runs an Odd Jobs agency alongside Shinpachi and Kagura, parodying every known trope while delivering chaotic comedy and sword fights.',
         url: 'https://myanimelist.net/anime/918/Gintama'
     },
     'Tearjerker Masochist': {
         title: 'Your Lie in April',
         score: 8.65,
         image_url: 'https://cdn.myanimelist.net/images/anime/1286/99889.jpg',
-        synopsis: 'Kousei Arima is a piano prodigy who loses his ability to hear the sound of his own piano after the death of his abusive mother. Two years later, Kousei has avoided the piano and lives in a monochrome world. Everything changes when he meets Kaori Miyazono, a beautiful, free-spirited violinist whose playing style reflects her manic-depressive personality. Kaori helps Kousei return to the music world and shows him that it should be free and mold-breaking, unlike the structured method his mother taught him.',
+        synopsis: 'Former piano prodigy Kousei Arima meets free-spirited violinist Kaori Miyazono, who helps him rediscover the vibrant color of music after years of grief and silence.',
         url: 'https://myanimelist.net/anime/23273/Shigatsu_wa_Kimi_no_Uso'
     },
     'Truck-kun\'s Next Victim': {
         title: 'Frieren: Beyond Journey\'s End',
         score: 9.39,
         image_url: 'https://cdn.myanimelist.net/images/anime/1015/138025.jpg',
-        synopsis: 'The adventure is over but life goes on for an elven mage on a journey to learn what it means to be human. Elf mage Frieren and her courageous fellow adventurers have defeated the Demon King and brought peace to the land. But Frieren will long outlive the rest of her former party. How will she come to understand what life means to the humans around her? Decades after their victory, her friend\'s funeral guides her on a new pilgrimage to fulfill their memory.',
+        synopsis: 'The Demon King has been defeated. Elf mage Frieren begins a quiet pilgrimage to understand the brief lives and memories of the human comrades she outlived.',
         url: 'https://myanimelist.net/anime/52991/Sousou_no_Frieren'
     },
     'Edgelord Mastermind': {
         title: 'Death Note',
         score: 8.62,
         image_url: 'https://cdn.myanimelist.net/images/anime/9/9453.jpg',
-        synopsis: 'A shinigami, as a god of death, can kill any person—provided they see their victim\'s face and write their victim\'s name in a notebook called a Death Note. One day, Ryuk, bored by the shinigami lifestyle and interested in seeing how a human would use a Death Note, drops one into the human realm. High school student and prodigy Light Yagami stumbles upon the Death Note and—since he deplores the state of the world—tests the deadly notebook by writing a criminal\'s name in it.',
+        synopsis: 'Prodigy high school student Light Yagami finds a supernatural notebook that kills anyone whose name is written in it, igniting an intense mental duel with enigmatic detective L.',
         url: 'https://myanimelist.net/anime/1535/Death_Note'
     },
     'Cozy Tea-Drinker': {
         title: 'Yuru Camp△ (Laid-Back Camp)',
         score: 8.28,
         image_url: 'https://cdn.myanimelist.net/images/anime/1160/141019.jpg',
-        synopsis: 'Rin Shima loves camping alone along the lakesides that offer a scenic view of Mt. Fuji. Nadeshiko Kagamihara loves riding her bike to places where she can see Mt. Fuji. After the two meet when Nadeshiko gets lost, they decide to take camping trips together, eat cup ramen, and enjoy the quiet solace of nature. A heartwarming, soothing slice-of-life anime that makes you want to wrap yourself in a blanket.',
+        synopsis: 'Rin Shima and Nadeshiko Kagamihara take serene camping trips across picturesque Japanese lakesides near Mt. Fuji, cooking hot meals and enjoying peaceful nature.',
         url: 'https://myanimelist.net/anime/34798/Yuru_Camp%E2%96%B3'
     },
     'Gundam Pilot Trainee': {
         title: 'Tengen Toppa Gurren Lagann',
         score: 8.63,
         image_url: 'https://cdn.myanimelist.net/images/anime/5/17407.jpg',
-        synopsis: 'Simon and Kamina were born and raised in a deep, underground village, hidden from the legendary surface. Kamina is a free-spirited loose cannon bent on making a name for himself, while Simon is a timid young boy with no real aspirations. One day while excavating the earth, Simon stumbles upon a mysterious glowing key-like object. Supported by Kamina, Simon uses this key to pilot a small mecha they call Lagann, which breaches the ceiling of their cave, launching them into an explosive war for the surface of the earth!',
+        synopsis: 'Diggers Simon and Kamina discover a miniature mecha that breaches the underground cavern roof, launching an unstoppable galactic rebellion powered by sheer human willpower.',
         url: 'https://myanimelist.net/anime/2001/Tengen_Toppa_Gurren_Lagann'
     },
     'Underdog Protagonist': {
         title: 'Haikyu!!',
         score: 8.45,
         image_url: 'https://cdn.myanimelist.net/images/anime/7/76014.jpg',
-        synopsis: 'Inspired after watching a championship volleyball match on TV, junior high student Shouyou Hinata revives the volleyball club at his school. Despite Hinata\'s short stature, he possesses an explosive vertical jump. His team manages to make it to a tournament, but is absolutely crushed by the formidable "King of the Court," Tobio Kageyama. Hinata vows to surpass Kageyama, but when he enters Karasuno High School, he discovers his hated rival is now his teammate!',
+        synopsis: 'Shouyou Hinata revives his school volleyball club despite his short stature, partnering with former rival genius setter Tobio Kageyama to aim for the Nationals tournament.',
         url: 'https://myanimelist.net/anime/20583/Haikyuu'
     },
     'Eclectic Wanderer': {
         title: 'Mob Psycho 100',
         score: 8.49,
         image_url: 'https://cdn.myanimelist.net/images/anime/8/80356.jpg',
-        synopsis: 'Eighth-grader Shigeo "Mob" Kageyama has tapped into his inner wellspring of psychic prowess at a young age. But the power quickly proves to be a liability when he realizes the potential danger in his skills. Choosing to suppress his power, Mob\'s only present use for his ability is to impress his longtime crush, Tsubomi. In order to learn how to control his abilities, Mob enlists himself under the tutelage of Arataka Reigen, a con artist claiming to be a psychic, who exploits Mob\'s powers for pocket change.',
+        synopsis: 'Middle-school psychic Mob wants nothing more than to lead a normal life, working for con-artist exorcist Reigen while keeping his apocalyptic emotions under strict check.',
         url: 'https://myanimelist.net/anime/32182/Mob_Psycho_100'
     }
 };
 
 const GENRE_MAP = {
-    'Action': { archetype: 'Battle Shonen Junkie', color: 'var(--manga-red)' },
-    'Adventure': { archetype: 'Grand Line Explorer', color: 'var(--manga-yellow)' },
-    'Comedy': { archetype: 'Comedic Reliever', color: '#f39c12' },
-    'Drama': { archetype: 'Tearjerker Masochist', color: 'var(--manga-blue)' },
-    'Fantasy': { archetype: 'Truck-kun\'s Next Victim', color: '#8e44ad' },
-    'Mystery': { archetype: 'Edgelord Mastermind', color: 'var(--manga-ink)' },
-    'Romance': { archetype: 'Tearjerker Masochist', color: '#e056fd' },
-    'Sci-Fi': { archetype: 'Gundam Pilot Trainee', color: '#27ae60' },
-    'Slice of Life': { archetype: 'Cozy Tea-Drinker', color: '#1abc9c' },
-    'Supernatural': { archetype: 'Ghost Buster Apprentice', color: '#7f8c8d' },
-    'Thriller': { archetype: 'Edgelord Mastermind', color: 'var(--manga-ink)' },
-    'Sports': { archetype: 'Underdog Protagonist', color: '#d35400' }
+    'Action': { archetype: 'Battle Shonen Junkie', color: '#b91c1c' },
+    'Adventure': { archetype: 'Grand Line Explorer', color: '#c28b38' },
+    'Comedy': { archetype: 'Comedic Reliever', color: '#c2410c' },
+    'Drama': { archetype: 'Tearjerker Masochist', color: '#1e3a8a' },
+    'Fantasy': { archetype: 'Truck-kun\'s Next Victim', color: '#6b21a8' },
+    'Mystery': { archetype: 'Edgelord Mastermind', color: '#18181b' },
+    'Romance': { archetype: 'Tearjerker Masochist', color: '#be123c' },
+    'Sci-Fi': { archetype: 'Gundam Pilot Trainee', color: '#047857' },
+    'Slice of Life': { archetype: 'Cozy Tea-Drinker', color: '#0d9488' },
+    'Supernatural': { archetype: 'Ghost Buster Apprentice', color: '#475569' },
+    'Thriller': { archetype: 'Edgelord Mastermind', color: '#18181b' },
+    'Sports': { archetype: 'Underdog Protagonist', color: '#9a3412' }
 };
 
 const ROASTS = {
     'Battle Shonen Junkie': {
-        roast: "You probably yell 'Bankai!' when opening umbrellas and try to execute a Rasengan in the shower. You judge anime solely by how many craters a character can make in a mountain with one punch. Power scaling is your absolute religion, and you've spent hours arguing online about whether Goku could beat a literally omnipotent drawing of a stick figure.",
-        compliment: "But honestly? You've got pure heart and boundless hype! You value loyalty, hard work, and the absolute power of standing up for your crew. When the chips are down, you know that the power of friendship (accompanied by a legendary soundtrack) can overcome literally anything."
+        roast: "You definitely yell 'BANKAI!' when opening umbrellas and try to execute a Rasengan in the shower. You judge anime solely by how many mountain ranges get vaporized by a single punch. Power scaling is your entire religion, and you've spent 4 hours arguing online about whether Goku beats a literal stick figure.",
+        compliment: "Unstoppable heart and boundless hype! You value loyalty, the grind of training arcs, and standing up for your crew. When the chips are down and the orchestral battle theme drops, you know anything is possible!"
     },
     'Grand Line Explorer': {
-        roast: "You refuse to watch anything that doesn't involve a 100+ episode slow-burn journey to a legendary treasure. You have an unhealthy obsession with maps, flags, boats, and characters wearing oddly-shaped hats. You also spend 80% of your day watching theory videos explaining how a single panel from 15 years ago foresaw the end of the universe.",
-        compliment: "Your sense of wonder and patience is unmatched! You're in it for the long haul, valuing rich worldbuilding, deep-rooted lore, and the tight bond of nakama made along the way over any cheap, high-speed shortcuts."
+        roast: "You refuse to watch anything that doesn't demand a 1,000-episode commitment to a mythical island. You have an obsession with maps, flags, boats, and goofy hats, and spend 80% of your day watching theory videos explaining how a panel from 2004 foresaw the end of the universe.",
+        compliment: "Your patience and imagination are unmatched! You are in it for the long haul, valuing rich worldbuilding, deep lore, and the unbreakable bond of nakama over cheap dopamine shortcuts."
     },
     'Comedic Reliever': {
-        roast: "You treat anime as a high-speed serotonin dispenser. If a character doesn't pull a hyper-exaggerated face, break the fourth wall, or reference another popular manga within the first two minutes of an episode, you lose interest and open TikTok. You've probably laughed at the exact same toilet-humor gag 50 times in a row.",
-        compliment: "You bring pure, unfiltered joy! You don't take things too seriously and have a phenomenal sense of humor. You understand that sometimes, amidst all the dark fantasy and serious drama, a hearty laugh with quirky, ridiculous characters is the best adventure of all."
+        roast: "You treat anime like a high-speed serotonin dispensary. If an episode doesn't break the fourth wall, reference another manga, or pull an absurd facial distortion in the first 90 seconds, you open TikTok. You've laughed at the same gag 50 times in a row.",
+        compliment: "You bring pure joy and positive energy! You understand that amidst all the dark fantasy and grim drama, a hearty laugh with lovable weirdos is the best journey of all."
     },
     'Tearjerker Masochist': {
-        roast: "You willingly subject yourself to 24 episodes of agonizing slow-burn emotional damage just to watch two characters barely hold hands under a cherry blossom tree before one of them disappears. You buy tissues in bulk and have a physical, visceral reaction whenever you hear a violin or a piano key played in a minor chord.",
-        compliment: "You possess a deeply empathetic and beautiful soul. You value rich character connections, genuine vulnerability, and raw human emotion. Your heart is massive, and you aren't afraid to feel all the beautiful, bittersweet weight that life and storytelling have to offer."
+        roast: "You willingly sign up for 24 episodes of agonizing emotional damage just to watch two characters barely hold hands under a cherry blossom tree before one tragically vanishes. You buy tissues in bulk and flinch whenever you hear a violin in a minor key.",
+        compliment: "You possess a deeply empathetic and beautiful soul. You appreciate the vulnerable, bitter-sweet poetry of human connection and aren't afraid to feel everything life has to offer."
     },
     'Truck-kun\'s Next Victim': {
-        roast: "You've read 50 variations of 'Reincarnated as a High-Tier Slime' and you actively find yourself looking both ways before crossing the road, slightly hoping a speeding delivery truck hits you to send you to a fantasy world with cheat codes and a harem. You'd rather gather herbs in a forest than work a real-world job.",
-        compliment: "You possess a brilliant imagination and an escape artist's spirit! You love intricate magic systems, epic high-fantasy worldbuilding, and dreaming of the limitless possibilities that lie beyond our mundane everyday reality."
+        roast: "You've read 45 iterations of 'Reincarnated as a High-Tier Vegetable' and you look both ways before crossing the road, secretly hoping a speeding delivery truck sends you to a fantasy world with cheat stats and elf companions.",
+        compliment: "You are a master dreamer and world explorer! You love intricate magic systems, sprawling kingdoms, and imagining limitless horizons beyond our mundane routine."
     },
     'Edgelord Mastermind': {
-        roast: "You think you're Light Yagami or Lelouch, but you're actually just eating potato chips dramatically in your dark bedroom. You think happy endings are a sign of weak, childish writing and write essay-length Reddit posts analyzing 'moral gray areas'. Your favorite phrase is 'according to my calculations'.",
-        compliment: "You have a sharp, highly analytical mind! You love high-stakes intellectual chess matches, complex mystery boxes, and parsing the complicated, grey motivations that drive humans when their backs are against the wall."
+        roast: "You think you're Light Yagami or Lelouch, but you're actually just dramatically eating potato chips in a pitch-black bedroom. You think happy endings are a sign of weak writing and your favorite phrase is 'all according to my calculations'.",
+        compliment: "Sharp, cerebral, and relentlessly analytical! You thrive on high-stakes psychological chess, intricate mystery boxes, and understanding what pushes human nature to its outer edge."
     },
     'Cozy Tea-Drinker': {
-        roast: "You watch anime where the high-stakes climax of the season is a group of high school girls trying a new bakery or setting up a tent in the cold. You have an extremely low tolerance for conflict, and anything louder than a soft sigh or acoustic guitar strums gives you immediate existential stress.",
-        compliment: "You appreciate the quiet, beautiful, and healing moments of everyday life. You know how to slow down, practice self-care, and find magic in the ordinary. A true master of cozy vibes and finding peace in a chaotic world."
+        roast: "You watch shows where the climax of season two is whether the characters pitch a tent in the rain or bake strawberry scones. Anything louder than acoustic guitar fingerpicking causes you immediate existential stress.",
+        compliment: "You have mastered the art of mindfulness and peace. You appreciate the quiet, healing beauty in ordinary days, finding solace when the rest of the world is screaming."
     },
     'Gundam Pilot Trainee': {
-        roast: "You think massive human-controlled steel robots are the only valid solution to complex geopolitical crises. You write essay-long complaints about 3D CGI mecha models and probably have a spreadsheet of thruster specs and power sources. You look at a toaster and think: 'Could this combine with an aircraft?'",
-        compliment: "You love epic scales, high-concept political intrigue, and engineering marvels. You see the complex systems that make the universe tick, and you believe that human willpower can pierce through even the most crushing mechanical odds!"
+        roast: "You believe multi-ton humanoid steel mechs are the only logical response to complex geopolitical crises. You maintain spreadsheets of thruster wattage and look at a household blender thinking 'could this combine with an interceptor?'",
+        compliment: "You love monumental scales, deep tactical strategy, and engineering marvels. You see how vast systems interconnect and believe human grit can pierce the heavens!"
     },
     'Underdog Protagonist': {
-        roast: "You get physically hyped watching cartoon characters sweat over a volleyball or run around a high school track. You've probably cried when a drawing of a baseball didn't cross a digital plate, and you've definitely tried to execute a high-speed run or spike in public, to the deep concern of bystanders.",
-        compliment: "You have unmatched work ethic and passion! You believe in the beauty of training arcs, sweat, tears, and never giving up on your dreams, no matter how intimidating the opponent. Your grit and drive are genuinely inspiring!"
+        roast: "You get physically teary-eyed watching drawn athletes sweat over a volleyball or track relay. You've definitely attempted a high-speed sprint or spike in public, to the deep concern of bystanders.",
+        compliment: "Incredible work ethic and indomitable spirit! You respect sweat, discipline, and training arcs. You know that champions are forged in the quiet hours when nobody is cheering."
     },
     'Eclectic Wanderer': {
-        roast: "Your watch list looks like a digital junk drawer. One minute you're watching a cooking battle in hell, the next a heavy mecha tragedy, and then a slow-burn romance about calligraphy. Do you actually have a taste preference, or are you just rolling a 20-sided die to choose your next series?",
-        compliment: "You are a true open-minded connoisseur of the medium! You refuse to be boxed in by arbitrary labels, recognizing and appreciating the artistic merit in every single corner of the anime seas. A versatile, brave navigator of all genres!"
+        roast: "Your watch history looks like a digital junk drawer. One minute you're watching a cooking tournament in hell, then a mecha tragedy, then a 1980s romance about calligraphy. Do you have a taste or do you just roll a 20-sided die?",
+        compliment: "A true open-minded connoisseur of the medium! You refuse to be boxed in, recognizing artistry in every corner of the animated sea. A fearless, versatile voyager!"
     }
 };
 
@@ -147,17 +158,17 @@ const OFFLINE_ANIME_DB = [
     { mal_id: 38000, title: 'Demon Slayer: Kimetsu no Yaiba', score: 8.5, type: 'TV', year: 2019, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/1286/99889.jpg' } }, genres: [{ name: 'Action' }, { name: 'Fantasy' }] },
     { mal_id: 40748, title: 'Jujutsu Kaisen', score: 8.6, type: 'TV', year: 2020, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/1171/109222.jpg' } }, genres: [{ name: 'Action' }, { name: 'Fantasy' }] },
     { mal_id: 23273, title: 'Your Lie in April', score: 8.6, type: 'TV', year: 2014, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/3/67177.jpg' } }, genres: [{ name: 'Drama' }, { name: 'Romance' }] },
-    { mal_id: 20583, title: 'Haikyu!!', score: 8.4, type: 'TV', year: 2014, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/7/76014.jpg' } }, genres: [{ name: 'Sports' }] },
-    { mal_id: 52991, title: 'Frieren: Beyond Journey\'s End', score: 9.3, type: 'TV', year: 2023, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/1015/138025.jpg' } }, genres: [{ name: 'Adventure' }, { name: 'Drama' }, { name: 'Fantasy' }] },
-    { mal_id: 34798, title: 'Yuru Camp△', score: 8.2, type: 'TV', year: 2018, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/1160/141019.jpg' } }, genres: [{ name: 'Slice of Life' }] },
-    { mal_id: 918, title: 'Gintama', score: 8.9, type: 'TV', year: 2006, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/10/73274.jpg' } }, genres: [{ name: 'Action' }, { name: 'Comedy' }, { name: 'Sci-Fi' }] }
+    { mal_id: 20583, title: 'Haikyu!!', score: 8.4, type: 'TV', year: 2014, images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/7/76014.jpg' } }, genres: [{ name: 'Sports' }] }
 ];
 
-const AnimeAssessor = () => {
-    // Checklist initialized from localStorage
+const AnimeAssessor = ({ onTriggerSfx }) => {
     const [checklist, setChecklist] = useState(() => {
-        const saved = localStorage.getItem('anime-logbook');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('anime-logbook');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -167,13 +178,15 @@ const AnimeAssessor = () => {
     const [judgingText, setJudgingText] = useState('');
     const [verdict, setVerdict] = useState(null);
     const [errorMsg, setErrorMsg] = useState('');
+    const [copiedToast, setCopiedToast] = useState(false);
 
     const searchTimeout = useRef(null);
 
     // Sync checklist with localStorage
     useEffect(() => {
-        localStorage.setItem('anime-logbook', JSON.stringify(checklist));
-        // Reset verdict when checklist changes so they can run the analyzer again
+        try {
+            localStorage.setItem('anime-logbook', JSON.stringify(checklist));
+        } catch {}
         if (verdict) setVerdict(null);
     }, [checklist]);
 
@@ -228,8 +241,7 @@ const AnimeAssessor = () => {
                 
                 setSearchResults(mappedResults);
             } catch (err) {
-                console.error('Search error:', err);
-                // Fallback to offline DB if AniList API is rate limited or timing out
+                console.warn('Search falling back to offline DB:', err);
                 const term = searchTerm.toLowerCase();
                 const offlineResults = OFFLINE_ANIME_DB.filter(anime => 
                     anime.title.toLowerCase().includes(term)
@@ -237,14 +249,13 @@ const AnimeAssessor = () => {
                 
                 if (offlineResults.length > 0) {
                     setSearchResults(offlineResults);
-                    setErrorMsg('AniList API is slow. Using offline emergency logbook! Some results may be limited.');
                 } else {
-                    setErrorMsg('Failed to fetch anime and not found in emergency logbook. Try again in a moment!');
+                    setErrorMsg('Network busy. Try searching another popular title (e.g. Naruto, One Piece, Attack on Titan)!');
                 }
             } finally {
                 setLoadingSearch(false);
             }
-        }, 600); // 600ms debounce to prevent API abuse
+        }, 500);
 
         return () => {
             if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -257,13 +268,13 @@ const AnimeAssessor = () => {
             return;
         }
         
-        // Extract genres
-        const itemGenres = anime.genres.map(g => ({ name: g.name }));
+        animeAudio.playDenDenMushi();
 
+        const itemGenres = anime.genres.map(g => ({ name: g.name }));
         const newLogItem = {
             mal_id: anime.mal_id,
             title: anime.title,
-            image_url: anime.images?.jpg?.image_url || anime.images?.jpg?.large_image_url || '',
+            image_url: anime.images?.jpg?.image_url || '',
             genres: itemGenres,
             score: anime.score || 0
         };
@@ -275,11 +286,13 @@ const AnimeAssessor = () => {
     };
 
     const removeFromLogbook = (mal_id) => {
+        animeAudio.playDenDenMushi();
         setChecklist(prev => prev.filter(item => item.mal_id !== mal_id));
         setErrorMsg('');
     };
 
     const clearLogbook = () => {
+        animeAudio.playDenDenMushi();
         setChecklist([]);
         setVerdict(null);
         setErrorMsg('');
@@ -287,20 +300,20 @@ const AnimeAssessor = () => {
 
     const runTasteAnalyzer = async () => {
         if (checklist.length < 3) {
-            setErrorMsg("You need at least 3 logged anime in your logbook before the elders will judge your taste!");
+            setErrorMsg("You need at least 3 logged anime in your logbook before the Elders will judge your soul!");
             return;
         }
 
         setAnalyzing(true);
         setErrorMsg('');
+        animeAudio.playDonImpact();
 
-        // Dramatic phrases to display while judging
         const dramaticPhrases = [
             "SUMMONING THE ELDERS OF THE GRAND LINE...",
-            "SIFTING THROUGH THE SCROLLS OF YOUR SINS...",
-            "TALLYING THE POWER LEVELS...",
-            "UNLEASHING THE CONQUEROR'S HAKI...",
-            "PREPARING THE ULTIMATE VERDICT..."
+            "MEASURING OTAKU CONQUEROR'S HAKI...",
+            "POWER LEVEL READINGS: OVER 9,000!!",
+            "SIFTING THROUGH SCROLLS OF ANIME SINS...",
+            "ENGRAVING OFFICIAL MARINE WANTED BOUNTY..."
         ];
 
         let index = 0;
@@ -310,10 +323,10 @@ const AnimeAssessor = () => {
             index++;
             if (index < dramaticPhrases.length) {
                 setJudgingText(dramaticPhrases[index]);
+                animeAudio.playHakiCharge(index + 1);
             }
-        }, 800);
+        }, 750);
 
-        // Run the judging logic after 4 seconds of dramatic build-up
         setTimeout(async () => {
             clearInterval(textInterval);
             
@@ -336,7 +349,6 @@ const AnimeAssessor = () => {
                 }
             });
 
-            // Map dominant genre to archetype
             const genreInfo = GENRE_MAP[dominantGenreName];
             const archetype = genreInfo ? genreInfo.archetype : 'Eclectic Wanderer';
             const accentColor = genreInfo ? genreInfo.color : '#8e44ad';
@@ -349,7 +361,7 @@ const AnimeAssessor = () => {
                 try {
                     const query = `
                         query ($genre: String, $notIn: [Int]) {
-                            Page(page: 1, perPage: 10) {
+                            Page(page: 1, perPage: 8) {
                                 media(genre: $genre, type: ANIME, sort: SCORE_DESC, id_not_in: $notIn, isAdult: false) {
                                     id
                                     title { romaji english }
@@ -378,7 +390,6 @@ const AnimeAssessor = () => {
                         if (resultsList.length > 0) {
                             const recAnime = resultsList[0];
                             let cleanDesc = recAnime.description || 'No synopsis available.';
-                            // Strip HTML tags using regex
                             cleanDesc = cleanDesc.replace(/<br><br>/g, '\n').replace(/<[^>]*>?/gm, '');
 
                             recommendation = {
@@ -391,26 +402,54 @@ const AnimeAssessor = () => {
                         }
                     }
                 } catch (err) {
-                    console.warn("Failed fetching live recommendation from AniList:", err);
+                    console.warn("Failed fetching recommendation:", err);
                 }
             }
 
-            // Fallback recommendation if live fetch failed or returned nothing
             if (!recommendation) {
                 recommendation = FALLBACK_RECOMMENDATIONS[archetype] || FALLBACK_RECOMMENDATIONS['Eclectic Wanderer'];
             }
 
-            // Set final verdict state
+            // Calculate Authentic One Piece Berry Bounty
+            const baseBounty = 1400000000 + (checklist.length * 320000000);
+            const genreBonus = dominantGenreName === 'Action' ? 600000000 : 350000000;
+            const calculatedBounty = baseBounty + genreBonus;
+            const formattedBounty = calculatedBounty.toLocaleString();
+
+            const threatRank = checklist.length >= 8 
+                ? 'YONKO EMPEROR' 
+                : checklist.length >= 5 
+                    ? 'WARLORD OF THE SEA' 
+                    : 'SUPER ROOKIE';
+
+            const powerLevel = Math.min(9999, 8800 + checklist.length * 115);
+
             setVerdict({
                 archetype,
                 accentColor,
+                bountyFormatted: formattedBounty,
+                threatRank,
+                powerLevel,
                 roast: roastText.roast,
                 compliment: roastText.compliment,
-                recommendation
+                recommendation,
+                loggedCount: checklist.length
             });
 
+            animeAudio.playBountyFanfare();
+            animeAudio.playDonImpact();
             setAnalyzing(false);
-        }, 4000);
+        }, 3800);
+    };
+
+    const copyBountyCard = () => {
+        if (!verdict) return;
+        const text = `[GRAND LINE BOUNTY ISSUED]\nARCHETYPE: ${verdict.archetype}\nBOUNTY: ฿ ${verdict.bountyFormatted}\nTHREAT RANK: ${verdict.threatRank}\nPOWER LEVEL: ${verdict.powerLevel} / 9999\n\nTHE ROAST:\n"${verdict.roast}"\n\nNEXT TARGET ON LOG POSE:\n${verdict.recommendation.title} (Score: ${verdict.recommendation.score}/10)\n\nAssessed at Naveen's Portfolio Grand Line!`;
+        
+        navigator.clipboard.writeText(text);
+        animeAudio.playDenDenMushi();
+        setCopiedToast(true);
+        setTimeout(() => setCopiedToast(false), 3000);
     };
 
     return (
@@ -423,17 +462,17 @@ const AnimeAssessor = () => {
             <div className="aw-assessor-container">
                 <div className="aw-assessor-intro">
                     <p className="aw-assessor-desc">
-                        Every sailor has a logbook, but only true pirates are judged by their voyages. Log at least <strong style={{ color: 'var(--manga-red)' }}>3 anime</strong> you have completed below, and let our Grand Line algorithm assess your otaku archetype!
+                        Every sailor has a logbook, but only true pirates are judged by the Grand Line. Search and log at least <strong style={{ color: 'var(--manga-red)' }}>3 anime</strong> you have completed to summon the Elders and receive your official Marine Bounty!
                     </p>
                 </div>
 
                 {/* ── SEARCH PANEL ── */}
                 <div className="aw-assessor-search-panel">
                     <div className="aw-assessor-search-box">
-                        <FaSearch className="aw-search-icon" />
+                        <SearchIcon size={22} className="aw-search-icon" />
                         <input
                             type="text"
-                            placeholder="Search and log watched anime (e.g., Naruto, Death Note, Frieren)..."
+                            placeholder="Search completed anime (e.g., Naruto, Death Note, Frieren)..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="aw-assessor-search-input"
@@ -441,7 +480,7 @@ const AnimeAssessor = () => {
                         {loadingSearch && <div className="aw-spinner" />}
                     </div>
 
-                    {/* Search Results Autocomplete */}
+                    {/* Search Results Dropdown */}
                     <AnimatePresence>
                         {searchResults.length > 0 && (
                             <motion.div 
@@ -469,7 +508,7 @@ const AnimeAssessor = () => {
                                                 {anime.score ? `• ⭐ ${anime.score}` : ''}
                                             </span>
                                         </div>
-                                        <button className="aw-add-btn">
+                                        <button className="aw-add-btn" title="Add to Logbook">
                                             <FaPlus />
                                         </button>
                                     </div>
@@ -478,7 +517,7 @@ const AnimeAssessor = () => {
                         )}
                     </AnimatePresence>
 
-                    {/* Error Alerts */}
+                    {/* Alerts */}
                     <AnimatePresence>
                         {errorMsg && (
                             <motion.div 
@@ -496,7 +535,7 @@ const AnimeAssessor = () => {
                 {/* ── LOGBOOK DISPLAY ── */}
                 <div className="aw-logbook-panel">
                     <div className="aw-logbook-header">
-                        <h3><FaBookOpen /> YOUR SHIPS LOGBOOK ({checklist.length})</h3>
+                        <h3><FaBookOpen /> YOUR SHIP'S LOGBOOK ({checklist.length})</h3>
                         {checklist.length > 0 && (
                             <button className="aw-clear-all-btn" onClick={clearLogbook}>
                                 <FaTrash /> Clear Logbook
@@ -506,7 +545,7 @@ const AnimeAssessor = () => {
 
                     {checklist.length === 0 ? (
                         <div className="aw-logbook-empty">
-                            <p>⚓ Your logbook is blank, sailor! Search and log your watched anime above to start your assessment.</p>
+                            <p><FaBookOpen style={{ marginRight: 8, opacity: 0.7 }} /> Your logbook is blank, sailor! Search and log your watched anime above to start your assessment.</p>
                         </div>
                     ) : (
                         <div className="aw-logbook-grid">
@@ -524,7 +563,7 @@ const AnimeAssessor = () => {
                                         onClick={() => removeFromLogbook(anime.mal_id)}
                                         title="Remove from Logbook"
                                     >
-                                        ✕
+                                        <FaTimes />
                                     </button>
                                     <img src={anime.image_url} alt={anime.title} className="aw-stamp-img" />
                                     <div className="aw-stamp-label">
@@ -542,7 +581,9 @@ const AnimeAssessor = () => {
                                 onClick={runTasteAnalyzer}
                                 disabled={checklist.length < 3}
                             >
-                                <span className="aw-judge-btn-inner">SUMMON THE ELDERS</span>
+                                <span className="aw-judge-btn-inner" style={{ display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+                                    <ZapIcon size={24} className="aw-judge-zap" /> SUMMON THE ELDERS <ZapIcon size={24} className="aw-judge-zap" />
+                                </span>
                             </button>
                             {checklist.length < 3 && (
                                 <span className="aw-judge-hint">Log {3 - checklist.length} more anime to trigger analysis</span>
@@ -562,14 +603,16 @@ const AnimeAssessor = () => {
                         >
                             <div className="aw-judgement-loading-box">
                                 <div className="aw-judgement-speedlines" />
-                                <div className="aw-shaking-skull">☠️</div>
+                                <div className="aw-shaking-skull">
+                                    <FaSkull className="aw-shaking-skull-svg" />
+                                </div>
                                 <h2 className="aw-judgement-impact-text">{judgingText}</h2>
                                 <div className="aw-judgement-progress-bar">
                                     <motion.div 
                                         className="aw-judgement-progress-fill"
                                         initial={{ width: "0%" }}
                                         animate={{ width: "100%" }}
-                                        transition={{ duration: 4, ease: "easeInOut" }}
+                                        transition={{ duration: 3.8, ease: "easeInOut" }}
                                     />
                                 </div>
                                 <p className="aw-judgement-loading-sub">A true pirate faces their verdict head-on...</p>
@@ -586,13 +629,40 @@ const AnimeAssessor = () => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            transition={{ type: 'spring', damping: 15 }}
+                            transition={{ type: 'spring', damping: 18 }}
                         >
-                            <div className="aw-verdict-title-box">
-                                <div className="aw-verdict-badge">VERDICT RECEIVED</div>
-                                <h2 className="aw-verdict-archetype" style={{ textShadow: `4px 4px 0 ${verdict.accentColor}, 6px 6px 0 var(--manga-ink)` }}>
-                                    {verdict.archetype}
-                                </h2>
+                            {/* Official Generated Wanted Poster for the User */}
+                            <div className="aw-user-wanted-poster">
+                                <div className="aw-poster-anchor-seal">
+                                    <FaAnchor className="aw-seal-anchor-icon" /> WORLD GOVERNMENT
+                                </div>
+                                <div className="aw-user-wanted-title">WANTED</div>
+                                <div className="aw-user-wanted-sub">DEAD OR ALIVE</div>
+
+                                <div className="aw-user-archetype-box">
+                                    <div className="aw-archetype-emblem">
+                                        <SparklesIcon size={28} className="aw-sparkles-svg" />
+                                    </div>
+                                    <h2 className="aw-verdict-archetype" style={{ color: verdict.accentColor }}>
+                                        {verdict.archetype}
+                                    </h2>
+                                    <span className="aw-user-threat-badge">{verdict.threatRank}</span>
+                                </div>
+
+                                <div className="aw-user-bounty-strip">
+                                    <span className="aw-berry-symbol">฿</span>
+                                    <span className="aw-user-bounty-val">{verdict.bountyFormatted}</span>
+                                    <span className="aw-dash-stamp">-</span>
+                                </div>
+
+                                <div className="aw-user-scouter-row">
+                                    <span className="aw-scouter-metric">
+                                        <ZapIcon size={16} className="aw-zap-inline" style={{ color: 'var(--manga-gold)', marginRight: 6 }} /> POWER LEVEL: <strong>{verdict.powerLevel} / 9999</strong>
+                                    </span>
+                                    <span className="aw-scouter-metric">
+                                        <FaBookOpen style={{ marginRight: 6 }} /> LOGGED: <strong>{verdict.loggedCount} ANIME</strong>
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Speeches & Roasts */}
@@ -605,7 +675,7 @@ const AnimeAssessor = () => {
                                 </div>
 
                                 <div className="aw-verdict-panel aw-verdict-compliment">
-                                    <div className="aw-speech-bubble bubble-right" style={{ boxShadow: `-10px 10px 0 ${verdict.accentColor}` }}>
+                                    <div className="aw-speech-bubble bubble-right" style={{ boxShadow: `-8px 8px 0 ${verdict.accentColor}` }}>
                                         <span className="aw-mood-tag" style={{ color: 'var(--manga-blue)' }}>[THE SALUTE]</span>
                                         <p className="aw-speech-text">"{verdict.compliment}"</p>
                                     </div>
@@ -614,8 +684,8 @@ const AnimeAssessor = () => {
 
                             {/* Recommendation Card */}
                             <div className="aw-verdict-recommendation-sec">
-                                <div className="aw-rec-header">
-                                    <FaCrown style={{ color: 'var(--manga-yellow)' }} /> NEXT DESTINATION ON THE LOG POSE
+                                <div className="aw-rec-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <TelescopeIcon size={24} className="aw-rec-telescope" style={{ color: 'var(--manga-yellow)' }} /> NEXT DESTINATION ON THE LOG POSE
                                 </div>
 
                                 <div className="aw-rec-manga-card">
@@ -639,13 +709,17 @@ const AnimeAssessor = () => {
                                 </div>
                             </div>
 
-                            {/* Reset / Continue */}
+                            {/* Share & Actions */}
                             <div className="aw-verdict-actions">
+                                <button className="aw-share-bounty-btn" onClick={copyBountyCard}>
+                                    {copiedToast ? <FaCheck /> : <FaShareAlt />}
+                                    <span>{copiedToast ? 'BOUNTY COPIED TO SCROLL!' : 'SHARE BOUNTY CARD'}</span>
+                                </button>
                                 <button className="aw-rejudge-btn" onClick={runTasteAnalyzer}>
-                                    <FaRedo /> Re-examine scrolls
+                                    <FaRedo /> Re-examine Scrolls
                                 </button>
                                 <button className="aw-rejudge-btn reset-btn" onClick={clearLogbook}>
-                                    ⚓ Clear Logbook and restart
+                                    <FaTrash style={{ marginRight: 6 }} /> Clear Logbook
                                 </button>
                             </div>
                         </motion.div>

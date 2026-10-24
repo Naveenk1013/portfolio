@@ -1,30 +1,37 @@
 import { useState } from 'react';
+import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { CalendarCheckIcon } from '../icons';
 import CardSwap, { Card } from '../CardSwap/CardSwap';
 import './Experience.css';
 
 const experiences = [
-
     {
-        company: 'Startup Inc',
-        role: 'Frontend Developer at Lancealot.in',
+        company: 'IIHM Hyderabad',
+        role: 'Assistant Professor',
+        duration: 'August 2026 - Present',
+        description: 'Educating and guiding students in computer fundamentals, modern web technologies, and generative AI. Designing hands-on lab curricula and mentoring technical projects.',
+        skills: ['Computer Science', 'AI & Prompt Engineering', 'Web Technologies', 'Curriculum Design', 'Mentorship']
+    },
+    {
+        company: 'Lancealot.in',
+        role: 'Frontend Developer',
         duration: '2024 - Present',
         description: 'Developed user interfaces and improved user experience. Collaborated with design team to create beautiful products.',
         skills: ['Vue.js', 'CSS', 'JavaScript', 'Figma']
     },
     {
+        company: 'Asia Pacific Institute of Management',
+        role: 'Assistant Professor',
+        duration: '2023 - 2026',
+        description: 'Taught students computer fundamentals, web fundamentals, and emerging AI technologies while guiding academic coursework.',
+        skills: ['HTML', 'CSS', 'Prompt Engineering', 'AI', 'Basics of Computers']
+    },
+    {
         company: 'Freelance',
-        role: 'Web Developer and Graphic designer',
+        role: 'Web Developer & Graphic Designer',
         duration: '2021 - 2022',
         description: 'Created websites and web apps for various clients. Learned to manage projects and communicate with stakeholders.',
         skills: ['HTML', 'CSS', 'JavaScript', 'WordPress']
-    },
-
-    {
-        company: 'Assistant professor',
-        role: 'Assistant professor at Asia pacific Institute of Management',
-        duration: '2023 - Present',
-        description: 'Teaching students and guiding them in their studies.',
-        skills: ['HTML', 'CSS', 'Prompt Engineering', 'AI', 'basics of computers']
     }
 ];
 
@@ -35,12 +42,19 @@ const ExperienceModal = ({ experience, index, total, onClose, onPrev, onNext }) 
     return (
         <div className="exp-modal-overlay" onClick={onClose}>
             <div className="exp-modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="exp-modal-close" onClick={onClose}>×</button>
+                <button className="exp-modal-close" onClick={onClose} aria-label="Close details">
+                    <FaTimes size={15} />
+                </button>
 
                 <div className="exp-modal-card" key={index}>
                     <div className="exp-modal-header">
-                        <h3 className="exp-modal-company">{experience.company}</h3>
-                        <span className="exp-modal-duration">{experience.duration}</span>
+                        <h3 className="exp-modal-company">
+                            {experience.company}
+                        </h3>
+                        <span className="exp-modal-duration">
+                            <CalendarCheckIcon size={14} style={{ marginRight: 6, verticalAlign: 'middle', display: 'inline-flex' }} />
+                            {experience.duration}
+                        </span>
                     </div>
                     <p className="exp-modal-role">{experience.role}</p>
                     <p className="exp-modal-description">{experience.description}</p>
@@ -57,8 +71,9 @@ const ExperienceModal = ({ experience, index, total, onClose, onPrev, onNext }) 
                         className="exp-modal-nav-btn exp-modal-prev"
                         onClick={(e) => { e.stopPropagation(); onPrev(); }}
                         disabled={index === 0}
+                        aria-label="Previous experience"
                     >
-                        ‹
+                        <FaChevronLeft size={13} />
                     </button>
                     <div className="exp-modal-indicators">
                         {Array.from({ length: total }).map((_, i) => (
@@ -72,8 +87,9 @@ const ExperienceModal = ({ experience, index, total, onClose, onPrev, onNext }) 
                         className="exp-modal-nav-btn exp-modal-next"
                         onClick={(e) => { e.stopPropagation(); onNext(); }}
                         disabled={index === total - 1}
+                        aria-label="Next experience"
                     >
-                        ›
+                        <FaChevronRight size={13} />
                     </button>
                 </div>
             </div>
@@ -117,8 +133,8 @@ const Experience = () => {
                         <CardSwap
                             width={420}
                             height={320}
-                            cardDistance={50}
-                            verticalDistance={60}
+                            cardDistance={42}
+                            verticalDistance={52}
                             delay={4000}
                             pauseOnHover={true}
                             skewAmount={4}

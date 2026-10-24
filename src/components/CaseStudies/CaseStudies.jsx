@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import CaseStudyCard from './CaseStudyCard';
-import AirbnbLogoMorph from './AirbnbLogoMorph';
-import GlassShader from './GlassShader';
 import CaseStudyModal from './CaseStudyModal';
 import { FaApple, FaAirbnb, FaWindows } from 'react-icons/fa';
 import { SiFlipkart } from 'react-icons/si';
@@ -12,8 +10,9 @@ const caseStudiesData = [
         id: 'apple',
         title: 'Apple Glass',
         subtitle: 'Immersive Refraction & Spatial Design',
+        tag: 'SPATIAL 3D',
         icon: FaApple,
-        color: '#5227ff',
+        color: '#8b5cf6',
         background: 'Apple Vision Pro marks the beginning of spatial computing. This study explores the gap in design frameworks for 3D physical space.',
         problem: 'Current UI conventions are designed for 2D rectangles. On Apple Glass, there is no rectangle, leading to disorienting experiences.',
         solution: 'Depth-Based Content Hierarchy, Physically Accurate Refractive Materials, and Gaze-Mapped Interaction Zones.',
@@ -37,6 +36,7 @@ const caseStudiesData = [
         id: 'airbnb',
         title: 'Airbnb Logo',
         subtitle: 'Geometric Evolution & Path Morphing',
+        tag: 'PATH MORPH',
         icon: FaAirbnb,
         color: '#ff385c',
         background: 'The Airbnb Bélo encodes four symbolic forms—person, location, heart, and A—within a single continuous SVG path.',
@@ -62,6 +62,7 @@ const caseStudiesData = [
         id: 'windows',
         title: 'Windows Design',
         subtitle: 'Glassmorphism & Material System',
+        tag: 'FLUENT ACRYLIC',
         icon: FaWindows,
         color: '#0078d4',
         background: 'Windows 11 introduced Mica and Acrylic—material languages that respond to wallpaper and ambient lighting.',
@@ -87,6 +88,7 @@ const caseStudiesData = [
         id: 'flipkart',
         title: 'Flipkart AR',
         subtitle: 'E-commerce Spatial Interactions',
+        tag: 'AR COMMERCE',
         icon: SiFlipkart,
         color: '#2874f0',
         background: 'Flipkart users in Tier 2/3 India often struggle with high return rates due to spatial misjudgments on entry-level devices.',
@@ -138,10 +140,7 @@ const CaseStudies = ({ onViewDashboard }) => {
                             key={study.id}
                             {...study}
                             onClick={() => openModal(study)}
-                        >
-                            {study.id === 'airbnb' && <AirbnbLogoMorph />}
-                            {study.id === 'apple' && <GlassShader />}
-                        </CaseStudyCard>
+                        />
                     ))}
                 </div>
             </div>

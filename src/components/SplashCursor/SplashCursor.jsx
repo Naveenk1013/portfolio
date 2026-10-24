@@ -39,7 +39,7 @@ function SplashCursor({
             this.deltaY = 0;
             this.down = false;
             this.moved = false;
-            this.color = [0, 0, 0];
+            this.color = { r: 0.2, g: 0.5, b: 1.0 };
             this.pressure = 0.5;
         }
 
@@ -712,9 +712,34 @@ function SplashCursor({
             return dt;
         }
 
+        function clearFluid() {
+            if (!gl) return;
+            gl.clearColor(0.0, 0.0, 0.0, 0.0);
+            if (dye) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, dye.read.fbo);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, dye.write.fbo);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+            }
+            if (velocity) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, velocity.read.fbo);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, velocity.write.fbo);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+            }
+            pointers.forEach(p => {
+                p.id = -1;
+                p.down = false;
+                p.moved = false;
+            });
+        }
+
         function resizeCanvas() {
-            let width = scaleByPixelRatio(canvas.clientWidth);
-            let height = scaleByPixelRatio(canvas.clientHeight);
+            const vp = window.visualViewport;
+            const viewW = vp ? Math.round(vp.width) : (window.innerWidth || canvas.clientWidth || 300);
+            const viewH = vp ? Math.round(vp.height) : (window.innerHeight || canvas.clientHeight || 150);
+            let width = scaleByPixelRatio(viewW);
+            let height = scaleByPixelRatio(viewH);
             if (canvas.width !== width || canvas.height !== height) {
                 canvas.width = width;
                 canvas.height = height;
@@ -828,9 +853,22 @@ function SplashCursor({
 
         function splatPointer(pointer) {
             let pressureScale = settingsRef.current.pressure ? pointer.pressure * 2.0 : 1.0;
+            let sizeMultiplier = settingsRef.current.splatSize || 1.0;
             let dx = pointer.deltaX * config.SPLAT_FORCE * pressureScale;
             let dy = pointer.deltaY * config.SPLAT_FORCE * pressureScale;
-            splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color, pressureScale);
+            splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color, pressureScale * sizeMultiplier);
+
+            // Mirror mode: duplicate splats symmetrically
+            const mirror = settingsRef.current.mirrorMode || 'none';
+            if (mirror === 'horizontal' || mirror === 'quad') {
+                splat(1.0 - pointer.texcoordX, pointer.texcoordY, -dx, dy, pointer.color, pressureScale * sizeMultiplier);
+            }
+            if (mirror === 'vertical' || mirror === 'quad') {
+                splat(pointer.texcoordX, 1.0 - pointer.texcoordY, dx, -dy, pointer.color, pressureScale * sizeMultiplier);
+            }
+            if (mirror === 'quad') {
+                splat(1.0 - pointer.texcoordX, 1.0 - pointer.texcoordY, -dx, -dy, pointer.color, pressureScale * sizeMultiplier);
+            }
         }
 
         function clickSplat(pointer) {
@@ -838,12 +876,30 @@ function SplashCursor({
             color.r *= 10.0;
             color.g *= 10.0;
             color.b *= 10.0;
+            let sizeMultiplier = settingsRef.current.splatSize || 1.0;
             let dx = 10 * (Math.random() - 0.5);
             let dy = 30 * (Math.random() - 0.5);
-            splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color);
+            splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color, sizeMultiplier);
+
+            // Mirror mode for clicks too
+            const mirror = settingsRef.current.mirrorMode || 'none';
+            if (mirror === 'horizontal' || mirror === 'quad') {
+                splat(1.0 - pointer.texcoordX, pointer.texcoordY, -dx, dy, color, sizeMultiplier);
+            }
+            if (mirror === 'vertical' || mirror === 'quad') {
+                splat(pointer.texcoordX, 1.0 - pointer.texcoordY, dx, -dy, color, sizeMultiplier);
+            }
+            if (mirror === 'quad') {
+                splat(1.0 - pointer.texcoordX, 1.0 - pointer.texcoordY, -dx, -dy, color, sizeMultiplier);
+            }
         }
 
         function splat(x, y, dx, dy, color, radiusScale = 1.0) {
+            if (isNaN(x) || isNaN(y) || isNaN(dx) || isNaN(dy)) return;
+            let validColor = color;
+            if (!validColor || typeof validColor.r !== 'number' || isNaN(validColor.r)) {
+                validColor = generateColor();
+            }
             splatProgram.bind();
             gl.uniform1i(splatProgram.uniforms.uTarget, velocity.read.attach(0));
             gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
@@ -854,7 +910,7 @@ function SplashCursor({
             velocity.swap();
 
             gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
-            gl.uniform3f(splatProgram.uniforms.color, color.r, color.g, color.b);
+            gl.uniform3f(splatProgram.uniforms.color, validColor.r, validColor.g, validColor.b);
             blit(dye.write);
             dye.swap();
         }
@@ -887,7 +943,11 @@ function SplashCursor({
             pointer.deltaX = correctDeltaX(pointer.texcoordX - pointer.prevTexcoordX);
             pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
             pointer.moved = Math.abs(pointer.deltaX) > 0 || Math.abs(pointer.deltaY) > 0;
-            pointer.color = color;
+            if (!color || typeof color.r !== 'number' || isNaN(color.r)) {
+                pointer.color = generateColor();
+            } else {
+                pointer.color = color;
+            }
             pointer.pressure = pressure;
         }
 
@@ -908,10 +968,33 @@ function SplashCursor({
         }
 
         function generateColor() {
-            let c = HSVtoRGB(Math.random(), 1.0, 1.0);
-            c.r *= 0.15;
-            c.g *= 0.15;
-            c.b *= 0.15;
+            const theme = settingsRef.current?.colorTheme || 'rainbow';
+            let h;
+            let s = 1.0;
+            let v = 1.0;
+            let intensity = 0.18;
+
+            if (theme === 'cyber') {
+                // Cyan to blue neon
+                h = 0.48 + Math.random() * 0.14;
+            } else if (theme === 'fire') {
+                // Red to gold
+                h = Math.random() * 0.12;
+            } else if (theme === 'matrix') {
+                // Green to lime
+                h = 0.25 + Math.random() * 0.13;
+            } else if (theme === 'cosmic') {
+                // Purple to magenta
+                h = 0.72 + Math.random() * 0.16;
+            } else {
+                // Rainbow spectrum
+                h = Math.random();
+            }
+
+            let c = HSVtoRGB(h, s, v);
+            c.r *= intensity;
+            c.g *= intensity;
+            c.b *= intensity;
             return c;
         }
 
@@ -992,7 +1075,13 @@ function SplashCursor({
 
         const pointerMoveHandler = e => {
             let pointer = pointers.find(p => p.id === e.pointerId);
-            if (!pointer) pointer = pointers[0];
+            if (!pointer) {
+                if (e.pointerType === 'mouse') {
+                    pointer = pointers[0];
+                } else {
+                    return;
+                }
+            }
             
             let posX = scaleByPixelRatio(e.clientX);
             let posY = scaleByPixelRatio(e.clientY);
@@ -1011,42 +1100,232 @@ function SplashCursor({
             }
         };
 
+        const pointerCancelHandler = e => {
+            let pointer = pointers.find(p => p.id === e.pointerId);
+            if (pointer) {
+                updatePointerUpData(pointer);
+                pointer.id = -1;
+            }
+        };
+
+        // Prevent pull-to-refresh & page bounce on mobile while in Zen mode
+        const touchMoveHandler = e => {
+            if (settingsRef.current?.isZenMode && e.cancelable) {
+                e.preventDefault();
+            }
+        };
+
+        // Fullscreen dynamic resize handler for device orientation / toolbar toggles
+        const handleResize = () => {
+            if (resizeCanvas()) initFramebuffers();
+        };
+
+        // ======== FUN FEATURES ENGINE ========
+
+        // FIREWORKS: Burst of randomized splats at random positions
+        const handleFireworks = (e) => {
+            const count = (e && e.detail && e.detail.count) || 16;
+            for (let i = 0; i < count; i++) {
+                const color = generateColor();
+                color.r *= 12.0;
+                color.g *= 12.0;
+                color.b *= 12.0;
+                const angle = (Math.PI * 2 * i) / count;
+                const cx = 0.3 + Math.random() * 0.4;
+                const cy = 0.3 + Math.random() * 0.4;
+                const speed = 600 + Math.random() * 800;
+                const dx = Math.cos(angle) * speed;
+                const dy = Math.sin(angle) * speed;
+                const sizeMultiplier = settingsRef.current.splatSize || 1.0;
+                splat(cx, cy, dx, dy, color, (0.6 + Math.random() * 0.8) * sizeMultiplier);
+            }
+        };
+
+        // VORTEX SPINNER: Automated circular motion creating mesmerizing spiral
+        let vortexInterval = null;
+        let vortexAngle = 0;
+        const startVortex = () => {
+            if (vortexInterval) return;
+            vortexInterval = setInterval(() => {
+                const cx = 0.5;
+                const cy = 0.5;
+                const r1 = 0.15;
+                const r2 = 0.28;
+                vortexAngle += 0.12;
+                const sizeMultiplier = settingsRef.current.splatSize || 1.0;
+                // Inner ring
+                const x1 = cx + Math.cos(vortexAngle) * r1;
+                const y1 = cy + Math.sin(vortexAngle) * r1;
+                const dx1 = Math.cos(vortexAngle + Math.PI / 2) * 2000;
+                const dy1 = Math.sin(vortexAngle + Math.PI / 2) * 2000;
+                const c1 = generateColor();
+                c1.r *= 10.0; c1.g *= 10.0; c1.b *= 10.0;
+                splat(x1, y1, dx1, dy1, c1, 0.6 * sizeMultiplier);
+                // Outer ring (counter-rotating)
+                const x2 = cx + Math.cos(-vortexAngle * 0.7) * r2;
+                const y2 = cy + Math.sin(-vortexAngle * 0.7) * r2;
+                const dx2 = Math.cos(-vortexAngle * 0.7 - Math.PI / 2) * 1500;
+                const dy2 = Math.sin(-vortexAngle * 0.7 - Math.PI / 2) * 1500;
+                const c2 = generateColor();
+                c2.r *= 8.0; c2.g *= 8.0; c2.b *= 8.0;
+                splat(x2, y2, dx2, dy2, c2, 0.5 * sizeMultiplier);
+            }, 30);
+        };
+        const stopVortex = () => {
+            if (vortexInterval) {
+                clearInterval(vortexInterval);
+                vortexInterval = null;
+            }
+        };
+        const handleVortexStart = () => startVortex();
+        const handleVortexStop = () => stopVortex();
+
+        // AUTO-PAINT (Screensaver): Random ambient splats at interval
+        let autoPaintInterval = null;
+        const startAutoPaint = () => {
+            if (autoPaintInterval) return;
+            autoPaintInterval = setInterval(() => {
+                const color = generateColor();
+                color.r *= 10.0;
+                color.g *= 10.0;
+                color.b *= 10.0;
+                const x = 0.1 + Math.random() * 0.8;
+                const y = 0.1 + Math.random() * 0.8;
+                const angle = Math.random() * Math.PI * 2;
+                const force = 400 + Math.random() * 1200;
+                const dx = Math.cos(angle) * force;
+                const dy = Math.sin(angle) * force;
+                const sizeMultiplier = settingsRef.current.splatSize || 1.0;
+                splat(x, y, dx, dy, color, (0.5 + Math.random() * 1.5) * sizeMultiplier);
+
+                // Mirror auto-paint too
+                const mirror = settingsRef.current.mirrorMode || 'none';
+                if (mirror === 'horizontal' || mirror === 'quad') {
+                    splat(1.0 - x, y, -dx, dy, color, (0.5 + Math.random() * 1.5) * sizeMultiplier);
+                }
+                if (mirror === 'vertical' || mirror === 'quad') {
+                    splat(x, 1.0 - y, dx, -dy, color, (0.5 + Math.random() * 1.5) * sizeMultiplier);
+                }
+                if (mirror === 'quad') {
+                    splat(1.0 - x, 1.0 - y, -dx, -dy, color, (0.5 + Math.random() * 1.5) * sizeMultiplier);
+                }
+            }, 180);
+        };
+        const stopAutoPaint = () => {
+            if (autoPaintInterval) {
+                clearInterval(autoPaintInterval);
+                autoPaintInterval = null;
+            }
+        };
+        const handleAutoPaintStart = () => startAutoPaint();
+        const handleAutoPaintStop = () => stopAutoPaint();
+
+        // SLOW-MO: Reduce dissipation for dreamy trails
+        const originalDensityDissipation = config.DENSITY_DISSIPATION;
+        const originalVelocityDissipation = config.VELOCITY_DISSIPATION;
+        const handleSlowMoOn = () => {
+            config.DENSITY_DISSIPATION = 0.97;
+            config.VELOCITY_DISSIPATION = 0.98;
+        };
+        const handleSlowMoOff = () => {
+            config.DENSITY_DISSIPATION = originalDensityDissipation;
+            config.VELOCITY_DISSIPATION = originalVelocityDissipation;
+        };
+
+        // SPLAT-AT: Programmatic splat at specific screen coordinates
+        const handleSplatAt = (e) => {
+            if (!e.detail) return;
+            const { clientX, clientY, count = 5 } = e.detail;
+            const normX = clientX / (window.innerWidth || 1);
+            const normY = 1.0 - (clientY / (window.innerHeight || 1));
+            const sizeMultiplier = settingsRef.current.splatSize || 1.0;
+            for (let i = 0; i < count; i++) {
+                const color = generateColor();
+                color.r *= 10.0; color.g *= 10.0; color.b *= 10.0;
+                const angle = Math.random() * Math.PI * 2;
+                const force = 300 + Math.random() * 700;
+                splat(normX, normY, Math.cos(angle) * force, Math.sin(angle) * force, color, 0.7 * sizeMultiplier);
+            }
+        };
+
+        // ======== EVENT REGISTRATION ========
+
         window.addEventListener('pointerdown', pointerDownHandler);
         window.addEventListener('pointermove', pointerMoveHandler);
         window.addEventListener('pointerup', pointerUpHandler);
-        window.addEventListener('pointercancel', pointerUpHandler);
+        window.addEventListener('pointercancel', pointerCancelHandler);
+        window.addEventListener('touchmove', touchMoveHandler, { passive: false });
+        window.addEventListener('fluid:clear', clearFluid);
+        window.addEventListener('fluid:fireworks', handleFireworks);
+        window.addEventListener('fluid:vortex:start', handleVortexStart);
+        window.addEventListener('fluid:vortex:stop', handleVortexStop);
+        window.addEventListener('fluid:autopaint:start', handleAutoPaintStart);
+        window.addEventListener('fluid:autopaint:stop', handleAutoPaintStop);
+        window.addEventListener('fluid:slowmo:on', handleSlowMoOn);
+        window.addEventListener('fluid:slowmo:off', handleSlowMoOff);
+        window.addEventListener('fluid:splat-at', handleSplatAt);
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', handleResize);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleResize);
+        }
 
         updateFrame();
 
         return () => {
             cancelAnimationFrame(animationFrameId);
+            stopVortex();
+            stopAutoPaint();
             window.removeEventListener('deviceorientation', deviceOrientationHandler);
             window.removeEventListener('pointerdown', pointerDownHandler);
             window.removeEventListener('pointermove', pointerMoveHandler);
             window.removeEventListener('pointerup', pointerUpHandler);
-            window.removeEventListener('pointercancel', pointerUpHandler);
+            window.removeEventListener('pointercancel', pointerCancelHandler);
+            window.removeEventListener('touchmove', touchMoveHandler);
+            window.removeEventListener('fluid:clear', clearFluid);
+            window.removeEventListener('fluid:fireworks', handleFireworks);
+            window.removeEventListener('fluid:vortex:start', handleVortexStart);
+            window.removeEventListener('fluid:vortex:stop', handleVortexStop);
+            window.removeEventListener('fluid:autopaint:start', handleAutoPaintStart);
+            window.removeEventListener('fluid:autopaint:stop', handleAutoPaintStop);
+            window.removeEventListener('fluid:slowmo:on', handleSlowMoOn);
+            window.removeEventListener('fluid:slowmo:off', handleSlowMoOff);
+            window.removeEventListener('fluid:splat-at', handleSplatAt);
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('orientationchange', handleResize);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', handleResize);
+            }
         };
     }, []);
+
+    const isZenMode = Boolean(settings?.isZenMode);
 
     return (
         <div
             style={{
                 position: 'fixed',
-                top: 0,
-                left: 0,
-                zIndex: 9999,
-                pointerEvents: 'none',
+                inset: 0,
                 width: '100%',
-                height: '100%'
+                height: '100dvh',
+                zIndex: isZenMode ? 9998 : 9999,
+                pointerEvents: isZenMode ? 'auto' : 'none',
+                background: isZenMode ? 'radial-gradient(circle at center, #0a0a16 0%, #020205 100%)' : 'transparent',
+                touchAction: 'none',
+                overflow: 'hidden'
             }}
         >
             <canvas
                 ref={canvasRef}
                 id="fluid"
                 style={{
-                    width: '100vw',
-                    height: '100vh',
-                    display: 'block'
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    display: 'block',
+                    touchAction: 'none'
                 }}
             />
         </div>

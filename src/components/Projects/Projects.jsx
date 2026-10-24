@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { RocketIcon, CompassIcon, ArrowRightIcon } from '../icons';
 import { projects } from '../../data/projectsData';
 import './Projects.css';
 
@@ -37,7 +38,11 @@ const Projects = () => {
                             </div>
                             <div className="featured-content">
                                 <span className={`featured-category ${project.category}`}>
-                                    {project.category === 'application' ? '🚀 Web App' : '🌐 Website'}
+                                    {project.category === 'application' ? (
+                                        <span className="cat-badge-inner"><RocketIcon size={14} /> Web App</span>
+                                    ) : (
+                                        <span className="cat-badge-inner"><CompassIcon size={14} /> Website</span>
+                                    )}
                                 </span>
                                 <h3 className="featured-title">{project.name}</h3>
                                 <p className="featured-description">{project.description}</p>
@@ -55,9 +60,7 @@ const Projects = () => {
                 <div className="projects-cta">
                     <Link to="/projects" className="view-all-btn">
                         <span>View All Projects</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
+                        <ArrowRightIcon size={18} />
                     </Link>
                     <p className="projects-count">{projects.length} projects in the gallery</p>
                 </div>

@@ -12,10 +12,10 @@ import Contact from './components/Contact/Contact';
 import CaseStudyDashboard from './components/CaseStudies/CaseStudyDashboard';
 import SplashCursor from './components/SplashCursor/SplashCursor';
 import FidgetSettings from './components/SplashCursor/FidgetSettings';
+import ZenPlayground from './components/SplashCursor/ZenPlayground';
 import SmoothScroll from './components/SmoothScroll/SmoothScroll';
 import ScrollProgress from './components/ui/ScrollProgress';
 import SectionReveal from './components/ui/SectionReveal';
-import IntroLoader from './components/IntroLoader/IntroLoader';
 import './App.css'
 
 const menuItems = [
@@ -38,11 +38,11 @@ function App() {
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [fidgetSettings, setFidgetSettings] = useState({
     multiTouch: true,
     pressure: true,
-    gyro: false
+    gyro: false,
+    colorTheme: 'rainbow'
   });
 
   const handleViewDashboard = (study) => {
@@ -60,13 +60,8 @@ function App() {
 
   return (
     <>
-      {/* Intro Loader — unmounts after animation completes */}
-      {isLoading && (
-        <IntroLoader onComplete={() => setIsLoading(false)} />
-      )}
-
-      {/* SplashCursor only mounts after IntroLoader finishes to prevent canvas context conflicts */}
-      {!isLoading && <SplashCursor settings={fidgetSettings} />}
+      {/* SplashCursor mounted directly with dynamic multi-device viewport & zen mode support */}
+      <SplashCursor settings={{ ...fidgetSettings, isZenMode }} />
       
       <FidgetSettings 
         settings={fidgetSettings} 
@@ -76,38 +71,11 @@ function App() {
       />
 
       {isZenMode ? (
-        <div style={{ width: '100vw', height: '100vh', background: 'black', overflow: 'hidden', position: 'relative', zIndex: 40 }}>
-          <button 
-            onClick={toggleZenMode}
-            style={{
-              position: 'absolute',
-              top: '20px',
-              left: '20px',
-              zIndex: 1001,
-              padding: '10px 20px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '20px',
-              color: 'white',
-              fontFamily: '"Space Grotesk", sans-serif',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-          >
-            ← Exit Canvas
-          </button>
-        </div>
+        <ZenPlayground
+          settings={fidgetSettings}
+          onSettingChange={handleSettingChange}
+          onExit={toggleZenMode}
+        />
       ) : (
         <SmoothScroll>
           <div className="app">

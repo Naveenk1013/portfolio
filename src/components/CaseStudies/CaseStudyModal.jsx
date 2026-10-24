@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
+import { FaTimes } from 'react-icons/fa';
 import './CaseStudyModal.css';
 
 const CaseStudyModal = ({ isOpen, onClose, study, onViewDashboard }) => {
@@ -15,7 +16,9 @@ const CaseStudyModal = ({ isOpen, onClose, study, onViewDashboard }) => {
                         exit={{ opacity: 0, scale: 0.8, y: 50 }}
                         onClick={e => e.stopPropagation()}
                     >
-                        <button className="modal-close" onClick={onClose}>&times;</button>
+                        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+                            <FaTimes size={16} />
+                        </button>
                         
                         <div className="modal-header">
                             <span className="modal-icon" style={{ '--accent-color': study.color }}>
