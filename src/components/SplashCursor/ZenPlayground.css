@@ -364,6 +364,7 @@
     background: linear-gradient(90deg, #ff385c, #5227ff, #00f7ff, #00ff88, #ff385c);
     background-size: 300% 100%;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: rainbowScroll 6s linear infinite;
     text-shadow: none;
@@ -559,6 +560,7 @@
     background: linear-gradient(90deg, #ff385c, #5227ff, #00f7ff, #00ff88, #ff385c);
     background-size: 300% 100%;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: rainbowScroll 6s linear infinite;
     text-shadow: none;

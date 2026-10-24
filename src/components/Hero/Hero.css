@@ -168,6 +168,7 @@
 .hero-name-first {
     background: linear-gradient(135deg, #ffffff 30%, #e2e8f0 60%, #00f7ff 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 30px rgba(0, 247, 255, 0.35));
 }
@@ -175,6 +176,7 @@
 .hero-name-last {
     background: linear-gradient(135deg, #00f7ff 15%, #b19eef 65%, #5227ff 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 35px rgba(177, 158, 239, 0.45));
 }
